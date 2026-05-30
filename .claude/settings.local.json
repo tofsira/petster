@@ -15,7 +15,8 @@
       "Bash(playwright-cli *)",
       "Bash(curl -s \"http://localhost:8765/styles.css\")",
       "PowerShell(docker compose version *)",
-      "Bash(npx payload *)"
+      "Bash(npx payload *)",
+      "PowerShell(gh auth *)"
     ]
   }
 }

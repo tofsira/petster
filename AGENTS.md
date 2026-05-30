@@ -12,8 +12,12 @@ Phase 1 scope:
 - Language: Thai only
 - Product type: read-only content website
 - CMS: Payload CMS 3.x
-- Frontend: Next.js 16 + TypeScript + Tailwind CSS 4 + shadcn/ui
-- Database: SQLite (via `@payloadcms/db-sqlite`) — file at `petster-app/petster.db`
+- Frontend: Next.js 16 + React 19 + TypeScript + Tailwind CSS 4 + shadcn/ui
+- Database: adapter switches by `DATABASE_URI`
+  - `file:./petster.db` → SQLite (`@payloadcms/db-sqlite`, dev default)
+  - `postgresql://…` → Postgres (`@payloadcms/db-postgres`, production)
+- Media: local in dev, Vercel Blob in prod (auto-enabled when `BLOB_READ_WRITE_TOKEN` is set)
+- Fonts: Prompt (display) + Sarabun (body) via `next/font/google`
 
 ## Repository Structure
 
@@ -22,15 +26,24 @@ pet _website/
 ├── legacy/              # Static HTML mock (reference only, do not edit)
 │   ├── index.html
 │   ├── dogs-health.html
+│   ├── script.js
 │   └── styles.css
 └── petster-app/         # Main application — work here
     ├── src/
-    │   ├── app/         # Next.js App Router
-    │   ├── collections/ # Payload collections
-    │   ├── globals/     # Payload globals
+    │   ├── app/             # Next.js App Router
+    │   │   ├── layout.tsx       # pass-through root layout
+    │   │   ├── sitemap.ts, robots.ts
+    │   │   ├── (site)/          # public routes — html/body + Petster CSS lives here
+    │   │   └── (payload)/       # Payload admin (/admin) + REST/GraphQL (/api)
+    │   ├── collections/     # Payload collections
+    │   ├── globals/         # Payload globals
+    │   ├── components/      # shared React components (site-chrome, reveal)
+    │   ├── lib/             # payload client + URL helpers
     │   └── payload.config.ts
+    ├── scripts/
+    │   └── seed.ts          # upsert 4 categories + 10 articles
     ├── public/
-    ├── .env             # Copy from .env.example
+    ├── .env                 # Copy from .env.example
     └── package.json
 ```
 
@@ -42,6 +55,7 @@ npm install
 cp ../.env.example .env   # edit PAYLOAD_SECRET
 npm run dev               # http://localhost:3000
 # Admin panel: http://localhost:3000/admin
+npm run seed              # populate sample content (idempotent)
 ```
 
 ## Brand Direction
@@ -99,23 +113,16 @@ These categories apply to both dogs and cats.
 
 ## SEO Structure
 
-Prefer topic-based URL hierarchy instead of generic blog URLs.
+Topic-based URL hierarchy — all implemented:
 
-Use:
+- `/` — homepage
+- `/dogs`, `/cats` — animal hubs
+- `/dogs/[category]`, `/cats/[category]` — category hubs (health / food / behavior / daily-care)
+- `/[animal]/[category]/[slug]` — article detail
+- `/principles` — editorial trust policy
+- `/sitemap.xml`, `/robots.txt` — auto from CMS
 
-- `/`
-- `/dogs`
-- `/cats`
-- `/dogs/health`
-- `/dogs/food`
-- `/dogs/behavior`
-- `/dogs/daily-care`
-- `/cats/health`
-- `/cats/food`
-- `/cats/behavior`
-- `/cats/daily-care`
-- `/dogs/health/dog-vomiting-causes`
-- `/cats/food/cat-not-eating`
+URL convention: animal is stored singular in the DB (`dog`, `cat`) but routed plural (`/dogs`, `/cats`). Conversion lives in `src/lib/url.ts` — never hand-format URLs.
 
 Avoid:
 
@@ -135,13 +142,14 @@ Avoid:
 | `animal` | select | `"dog"` \| `"cat"` |
 | `category` | relationship → categories | required |
 | `excerpt` | textarea | max 240 chars, used in cards + meta |
-| `heroImage` | upload → media | |
+| `heroImage` | upload → media | preferred when uploaded |
+| `heroImageUrl` | text | external URL fallback while building content; remove after upload |
 | `body` | richText (Lexical) | main article content |
 | `sources` | array | `{ label, url }` — แหล่งอ้างอิง |
 | `faq` | array | `{ question, answer }` |
 | `author` | relationship → authors | optional |
 | `publishedAt` | date | |
-| `featured` | checkbox | default false |
+| `featured` | checkbox | default false — homepage hero picks latest `featured=true` |
 | `seo.metaTitle` | text | |
 | `seo.metaDescription` | textarea | |
 | `seo.ogImage` | upload → media | |
@@ -155,6 +163,7 @@ Avoid:
 | `animal` | select | `"dog"` \| `"cat"` \| `"both"` |
 | `intro` | textarea | |
 | `heroImage` | upload → media | |
+| `heroImageUrl` | text | external URL fallback |
 | `seo.metaTitle` | text | |
 | `seo.metaDescription` | textarea | |
 
@@ -167,6 +176,15 @@ Avoid:
 | `credentials` | text | เช่น DVM, M.Sc. |
 | `bio` | textarea | |
 | `avatar` | upload → media | |
+
+### Settings (global, `src/globals/Settings.ts`)
+
+| Field | Type | Notes |
+|---|---|---|
+| `siteName` | text | default "Petster" |
+| `tagline` | text | |
+| `healthDisclaimer` | textarea | shown on `/principles` and (planned) article footers |
+| `socialLinks` | array | `{ platform, url }` |
 
 ## Creating Content via Local API (for seed scripts)
 
@@ -244,18 +262,25 @@ Suggested visual direction:
 - calm teal / green-blue primary family
 - restrained warm accent
 
-## Implementation Priorities
+## Implementation Status
 
-Build in this order unless the user changes direction:
+Done:
+1. ✅ Project scaffold (Next.js 16 + Payload 3 + Tailwind 4 + shadcn)
+2. ✅ Design foundation (tokens, fonts, route groups, chrome components)
+3. ✅ Payload schema (5 collections + 1 global)
+4. ✅ Homepage (CMS-connected: featured + categories + dog/cat sections)
+5. ✅ Category hubs (`/[animal]/[category]`)
+6. ✅ Article template (`/[animal]/[category]/[slug]` + related)
+7. ✅ Animal hubs (`/dogs`, `/cats`)
+8. ✅ Principles page + sitemap + robots
+9. ✅ Seed: 4 categories + 10 articles
 
-1. project scaffold
-2. design foundation
-3. Payload schema
-4. homepage
-5. category pages
-6. article template
-7. search experience
-8. SEO/supporting pages
+Pending (next):
+- Render Lexical richText body on article pages (currently bodies stored as plain strings in seed)
+- Author display on articles
+- JSON-LD (Article + FAQPage + Breadcrumb schema)
+- Search experience
+- Migrate Unsplash `heroImageUrl` placeholders to Media uploads (Vercel Blob)
 
 ## Agent Working Rules
 

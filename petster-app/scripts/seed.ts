@@ -1,5 +1,4 @@
 import { getPayload } from "payload";
-import config from "../src/payload.config.ts";
 
 type CategorySeed = {
   name: string;
@@ -280,8 +279,27 @@ const articles: ArticleSeed[] = [
   },
 ];
 
-async function seed() {
+export async function seedDatabase() {
+  const { default: config } = await import("@payload-config");
   const payload = await getPayload({ config });
+
+  const adminEmail = process.env.PAYLOAD_ADMIN_EMAIL || "admin@petster.local";
+  const adminPassword = process.env.PAYLOAD_ADMIN_PASSWORD || "PetsterAdmin2026!";
+
+  const existingUsers = await payload.find({ collection: "users", limit: 1 });
+  if (existingUsers.totalDocs === 0) {
+    await payload.create({
+      collection: "users",
+      data: {
+        email: adminEmail,
+        password: adminPassword,
+        name: "Petster Admin",
+      },
+    });
+    console.log(`  created admin user ${adminEmail}`);
+  } else {
+    console.log("  admin user already exists");
+  }
 
   console.log("Seeding categories...");
   const categoryMap = new Map<string, string | number>();
@@ -315,14 +333,15 @@ async function seed() {
       title: art.title,
       slug: art.slug,
       animal: art.animal,
-      category: categoryId as any,
+      category: categoryId,
       excerpt: art.excerpt,
+      body: art.body,
       heroImageUrl: art.heroImageUrl,
       sources: art.sources,
       faq: art.faq,
       featured: art.featured || false,
       publishedAt: new Date().toISOString(),
-    } as any;
+    };
 
     const existing = await payload.find({
       collection: "articles",
@@ -338,11 +357,16 @@ async function seed() {
     }
   }
 
-  console.log("\nDone.");
-  process.exit(0);
+  console.log("\nSeed complete.");
 }
 
-seed().catch((err) => {
-  console.error(err);
-  process.exit(1);
-});
+const isDirectRun = process.argv[1]?.includes("seed");
+
+if (isDirectRun) {
+  seedDatabase()
+    .then(() => process.exit(0))
+    .catch((err) => {
+      console.error(err);
+      process.exit(1);
+    });
+}

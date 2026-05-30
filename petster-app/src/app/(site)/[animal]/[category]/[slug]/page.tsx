@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { getPayloadClient } from "@/lib/payload";
+import { getArticleStaticParams } from "@/lib/cms-paths";
 import {
   slugToAnimal,
   animalLabel,
@@ -57,6 +58,10 @@ function imgFrom(article: Record<string, unknown>) {
   }
   const url = article.heroImageUrl as string | undefined;
   return url ? { url, alt: "" } : null;
+}
+
+export async function generateStaticParams() {
+  return getArticleStaticParams();
 }
 
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {

@@ -155,12 +155,15 @@ When recommending UI:
 
 Installed and running:
 
-- Next.js 16 (App Router)
+- Next.js 16 (App Router) + React 19
 - Payload CMS 3.x
 - TypeScript
-- SQLite (`petster-app/petster.db`) — migrate to PostgreSQL for production
-- Tailwind CSS 4
-- shadcn/ui
+- DB adapter switches by `DATABASE_URI`:
+  - `file:./petster.db` → SQLite (`@payloadcms/db-sqlite`, default for dev)
+  - `postgresql://...` → Postgres (`@payloadcms/db-postgres`, production)
+- Tailwind CSS 4 + shadcn/ui
+- Media storage: local in dev, Vercel Blob in prod (auto-enabled when `BLOB_READ_WRITE_TOKEN` is set)
+- Fonts: Prompt (display) + Sarabun (body) via `next/font/google`
 
 App lives in `petster-app/`. Static HTML mocks are in `legacy/` for reference only.
 
@@ -170,28 +173,67 @@ App lives in `petster-app/`. Static HTML mocks are in `legacy/` for reference on
 cd petster-app
 npm run dev        # http://localhost:3000
                    # Admin: http://localhost:3000/admin
+npm run seed       # populate 4 categories + 10 sample articles
 ```
+
+## Implemented Pages
+
+| URL | Page | Data source |
+|---|---|---|
+| `/` | Homepage | featured article + categories + 3 dog + 3 cat articles |
+| `/dogs`, `/cats` | Animal hub | categories + latest articles |
+| `/dogs/[category]`, `/cats/[category]` | Category hub | articles in category × animal |
+| `/[animal]/[category]/[slug]` | Article detail | full article + related (3 same category) |
+| `/principles` | หลักการคัดข้อมูล | Settings global + static |
+| `/sitemap.xml`, `/robots.txt` | SEO | auto-generated from CMS |
+| `/admin/*`, `/api/*` | Payload | auto-routed |
 
 ## Key Files
 
 ```
 petster-app/src/
-├── payload.config.ts          # Payload config — collections + DB
+├── payload.config.ts          # DB adapter switch + Vercel Blob plugin
 ├── collections/
-│   ├── Articles.ts            # title, slug, animal, category, excerpt, body, sources, faq, seo
-│   ├── Categories.ts          # name, slug, animal (dog/cat/both), intro
-│   ├── Authors.ts             # name, role, credentials
-│   ├── Media.ts
-│   └── Users.ts
-├── globals/Settings.ts
+│   ├── Articles.ts            # title, slug, animal, category, excerpt, heroImage|heroImageUrl, body, sources, faq, seo
+│   ├── Categories.ts          # name, slug, animal (dog/cat/both), intro, heroImage|heroImageUrl
+│   ├── Authors.ts             # name, role, credentials, bio
+│   ├── Media.ts               # upload (Vercel Blob in prod)
+│   └── Users.ts               # admin auth
+├── globals/Settings.ts        # siteName, healthDisclaimer
+├── lib/
+│   ├── payload.ts             # getPayloadClient()
+│   └── url.ts                 # animal singular↔plural helpers
+├── components/
+│   ├── site-chrome.tsx        # SiteHeader, SiteFooter, BottomNav
+│   └── reveal-on-scroll.tsx   # IntersectionObserver client component
 └── app/
-    ├── page.tsx               # Homepage (to be built)
-    └── (payload)/             # Payload admin routes (auto-generated)
+    ├── layout.tsx             # pass-through root
+    ├── sitemap.ts, robots.ts
+    ├── (site)/                # public website routes
+    │   ├── layout.tsx         # html/body + fonts + chrome
+    │   ├── petster.css        # design system CSS
+    │   ├── page.tsx           # homepage
+    │   ├── principles/page.tsx
+    │   └── [animal]/[category]/[slug]/page.tsx
+    └── (payload)/             # Payload admin + API (auto-generated)
 ```
 
-## Creating Content via Script
+## Schema Notes
 
-Use Payload Local API — no HTTP needed:
+- **animal**: stored as singular (`dog` / `cat`), URL is plural (`/dogs`, `/cats`) — convert via `lib/url.ts`
+- **heroImage** (upload) takes precedence over **heroImageUrl** (text) — fallback chain for transition off Unsplash placeholders
+- **featured**: checkbox on Articles, homepage hero shows the latest featured
+
+## Seed Script
+
+`scripts/seed.ts` is upsert-safe (creates or updates). Re-run anytime to reset content:
+
+```bash
+cd petster-app
+npm run seed
+```
+
+Run a custom one-off script: `npx tsx --env-file=.env scripts/your-script.ts`
 
 ```typescript
 import { getPayload } from 'payload'
@@ -203,5 +245,3 @@ await payload.create({
   data: { title: '...', slug: '...', animal: 'dog', category: categoryId, ... }
 })
 ```
-
-Run with: `npx tsx scripts/your-script.ts` from inside `petster-app/`

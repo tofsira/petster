@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { getPayloadClient } from "@/lib/payload";
+import { getCategoryStaticParams } from "@/lib/cms-paths";
 import { slugToAnimal, animalLabel, articleUrl, animalToSlug } from "@/lib/url";
 
 type Params = Promise<{ animal: string; category: string }>;
@@ -37,6 +38,10 @@ async function getCategoryData(animalSlug: string, categorySlug: string) {
   });
 
   return { animal, category, articles: articles.docs };
+}
+
+export async function generateStaticParams() {
+  return getCategoryStaticParams();
 }
 
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
