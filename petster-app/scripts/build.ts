@@ -36,6 +36,7 @@ async function main() {
   }
 
   execSync("next build", { stdio: "inherit", env: process.env });
+  process.exit(0);
 }
 
 main().catch((err) => {
