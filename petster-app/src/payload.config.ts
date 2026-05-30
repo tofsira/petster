@@ -17,7 +17,13 @@ import { Settings } from "./globals/Settings";
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
 
-const databaseUri = process.env.DATABASE_URI || "file:./petster.db";
+const normalizeEnv = (value?: string) => value?.trim().replace(/^["']|["']$/g, "");
+
+const databaseUri =
+  normalizeEnv(process.env.DATABASE_URI) ||
+  normalizeEnv(process.env.DATABASE_URL_UNPOOLED) ||
+  normalizeEnv(process.env.DATABASE_URL) ||
+  "file:./petster.db";
 const isPostgres =
   databaseUri.startsWith("postgres://") ||
   databaseUri.startsWith("postgresql://");

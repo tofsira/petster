@@ -6,6 +6,8 @@ import { slugToAnimal, animalLabel, articleUrl, animalToSlug } from "@/lib/url";
 
 type Params = Promise<{ animal: string; category: string }>;
 
+export const dynamic = "force-static";
+
 async function getCategoryData(animalSlug: string, categorySlug: string) {
   const animal = slugToAnimal(animalSlug);
   if (!animal) return null;
