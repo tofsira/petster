@@ -5,7 +5,17 @@ export const Authors: CollectionConfig = {
   access: { read: () => true },
   admin: { useAsTitle: "name" },
   fields: [
-    { name: "name", type: "text", required: true },
+    {
+      type: "row",
+      fields: [
+        { name: "name", type: "text", required: true },
+        {
+          name: "email",
+          type: "email",
+          admin: { description: "อีเมลผู้เขียน (ไม่แสดงสาธารณะ)" },
+        },
+      ],
+    },
     {
       name: "role",
       type: "select",
@@ -18,5 +28,12 @@ export const Authors: CollectionConfig = {
     { name: "credentials", type: "text", admin: { description: "เช่น DVM, M.Sc." } },
     { name: "bio", type: "textarea" },
     { name: "avatar", type: "upload", relationTo: "media" },
+    {
+      name: "articles",
+      type: "join",
+      collection: "articles",
+      on: "author",
+      admin: { description: "บทความทั้งหมดของผู้เขียนนี้" },
+    },
   ],
 };

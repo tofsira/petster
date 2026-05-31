@@ -1,6 +1,8 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { getPayloadClient } from "@/lib/payload";
+import { cmsFind } from "@/lib/cms";
+import { RichText } from "@payloadcms/richtext-lexical/react";
+import { defaultJSXConverters } from "@payloadcms/richtext-lexical/react";
 import { getArticleStaticParams } from "@/lib/cms-paths";
 import {
   slugToAnimal,
@@ -14,13 +16,44 @@ type Params = Promise<{ animal: string; category: string; slug: string }>;
 
 export const dynamic = "force-static";
 
+const CALLOUT_LABELS = { tip: "💡 เคล็ดลับ", warning: "⚠️ คำเตือน", info: "ℹ️ ข้อมูล" } as const;
+
+const bodyConverters = ({ defaultConverters }: { defaultConverters: typeof defaultJSXConverters }) => ({
+  ...defaultConverters,
+  blocks: {
+    callout: ({ node }: { node: any }) => {
+      const { type, message } = node.fields as { type: "tip" | "warning" | "info"; message: string };
+      return (
+        <div className={`block-callout block-callout-${type}`}>
+          <span className="block-callout-label">{CALLOUT_LABELS[type]}</span>
+          {message}
+        </div>
+      );
+    },
+    imageBlock: ({ node }: { node: any }) => {
+      const { image, caption } = node.fields as {
+        image: { url: string; alt?: string };
+        caption?: string;
+      };
+      if (!image?.url) return null;
+      return (
+        <div className="block-image">
+          <figure>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={image.url} alt={image.alt || caption || ""} />
+          </figure>
+          {caption && <figcaption>{caption}</figcaption>}
+        </div>
+      );
+    },
+  },
+});
+
 async function getArticle(animalSlug: string, categorySlug: string, slug: string) {
   const animal = slugToAnimal(animalSlug);
   if (!animal) return null;
 
-  const payload = await getPayloadClient();
-  const res = await payload.find({
-    collection: "articles",
+  const res = await cmsFind<any>("articles", {
     where: {
       and: [
         { slug: { equals: slug } },
@@ -36,9 +69,7 @@ async function getArticle(animalSlug: string, categorySlug: string, slug: string
 }
 
 async function getRelated(animal: Animal, categorySlug: string, excludeSlug: string) {
-  const payload = await getPayloadClient();
-  const res = await payload.find({
-    collection: "articles",
+  const res = await cmsFind<any>("articles", {
     where: {
       and: [
         { animal: { equals: animal } },
@@ -129,11 +160,15 @@ export default async function ArticlePage({ params }: { params: Params }) {
           ไม่ได้แทนการวินิจฉัยจากสัตวแพทย์
         </p>
 
+        {article.body && (
+          <RichText data={article.body} converters={bodyConverters} />
+        )}
+
         {Array.isArray(article.sources) && article.sources.length > 0 && (
           <section className="article-sources">
             <h2>แหล่งอ้างอิง</h2>
             <ul>
-              {article.sources.map((s, i) => (
+              {article.sources.map((s: { label: string; url?: string }, i: number) => (
                 <li key={i}>
                   {s.url ? (
                     <a href={s.url} target="_blank" rel="noopener noreferrer">

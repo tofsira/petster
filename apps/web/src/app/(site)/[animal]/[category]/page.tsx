@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { getPayloadClient } from "@/lib/payload";
+import { cmsFind } from "@/lib/cms";
 import { getCategoryStaticParams } from "@/lib/cms-paths";
 import { slugToAnimal, animalLabel, articleUrl, animalToSlug } from "@/lib/url";
 
@@ -12,9 +12,7 @@ async function getCategoryData(animalSlug: string, categorySlug: string) {
   const animal = slugToAnimal(animalSlug);
   if (!animal) return null;
 
-  const payload = await getPayloadClient();
-  const catRes = await payload.find({
-    collection: "categories",
+  const catRes = await cmsFind<any>("categories", {
     where: {
       and: [
         { slug: { equals: categorySlug } },
@@ -26,8 +24,7 @@ async function getCategoryData(animalSlug: string, categorySlug: string) {
   const category = catRes.docs[0];
   if (!category) return null;
 
-  const articles = await payload.find({
-    collection: "articles",
+  const articles = await cmsFind<any>("articles", {
     where: {
       and: [
         { animal: { equals: animal } },

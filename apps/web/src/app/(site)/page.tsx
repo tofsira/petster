@@ -1,4 +1,4 @@
-import { getPayloadClient } from "@/lib/payload";
+import { cmsFind } from "@/lib/cms";
 import { articleUrl, categoryUrl, type Animal } from "@/lib/url";
 
 const FALLBACK_IMAGES = {
@@ -22,30 +22,21 @@ function imgFrom(doc: Record<string, unknown>, fallback: string) {
 }
 
 async function getHomepageData() {
-  const payload = await getPayloadClient();
-
   const [featured, categories, dogArticles, catArticles] = await Promise.all([
-    payload.find({
-      collection: "articles",
+    cmsFind<any>("articles", {
       where: { featured: { equals: true } },
       sort: "-publishedAt",
       depth: 2,
       limit: 1,
     }),
-    payload.find({
-      collection: "categories",
-      sort: "name",
-      limit: 4,
-    }),
-    payload.find({
-      collection: "articles",
+    cmsFind<any>("categories", { sort: "name", limit: 4 }),
+    cmsFind<any>("articles", {
       where: { animal: { equals: "dog" } },
       sort: "-publishedAt",
       depth: 1,
       limit: 3,
     }),
-    payload.find({
-      collection: "articles",
+    cmsFind<any>("articles", {
       where: { animal: { equals: "cat" } },
       sort: "-publishedAt",
       depth: 1,

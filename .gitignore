@@ -20,3 +20,5 @@ apps/web/.vercel
 apps/web/*.db
 apps/web/*.png
 apps/web/.playwright-cli/
+
+.vercel

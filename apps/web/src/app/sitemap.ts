@@ -1,14 +1,12 @@
 import type { MetadataRoute } from "next";
-import { getPayloadClient } from "@/lib/payload";
+import { cmsFind } from "@/lib/cms";
 import { articleUrl, animalToSlug, categoryUrl, type Animal } from "@/lib/url";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const site = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
-  const payload = await getPayloadClient();
-
   const [articles, categories] = await Promise.all([
-    payload.find({ collection: "articles", depth: 1, limit: 1000 }),
-    payload.find({ collection: "categories", limit: 100 }),
+    cmsFind<any>("articles", { depth: 1, limit: 1000 }),
+    cmsFind<any>("categories", { limit: 100 }),
   ]);
 
   const staticUrls = ["/", "/dogs", "/cats", "/principles"].map((path) => ({

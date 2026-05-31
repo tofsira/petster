@@ -1,4 +1,4 @@
-import { getPayloadClient } from "@/lib/payload";
+import { cmsFind } from "@/lib/cms";
 import { animalToSlug, slugToAnimal, type AnimalSlug } from "@/lib/url";
 
 export async function getAnimalStaticParams() {
@@ -6,11 +6,7 @@ export async function getAnimalStaticParams() {
 }
 
 export async function getCategoryStaticParams() {
-  const payload = await getPayloadClient();
-  const categories = await payload.find({
-    collection: "categories",
-    limit: 100,
-  });
+  const categories = await cmsFind<any>("categories", { limit: 100 });
 
   const params: { animal: AnimalSlug; category: string }[] = [];
   for (const animalSlug of ["dogs", "cats"] as const) {
@@ -28,15 +24,10 @@ export async function getCategoryStaticParams() {
 }
 
 export async function getArticleStaticParams() {
-  const payload = await getPayloadClient();
-  const articles = await payload.find({
-    collection: "articles",
-    depth: 1,
-    limit: 500,
-  });
+  const articles = await cmsFind<any>("articles", { depth: 1, limit: 500 });
 
   return articles.docs
-    .map((article) => {
+    .map((article: any) => {
       const category =
         typeof article.category === "object" && article.category
           ? article.category.slug
@@ -49,7 +40,7 @@ export async function getArticleStaticParams() {
         slug: article.slug,
       };
     })
-    .filter((entry): entry is { animal: AnimalSlug; category: string; slug: string } =>
+    .filter((entry: any): entry is { animal: AnimalSlug; category: string; slug: string } =>
       Boolean(entry),
     );
 }

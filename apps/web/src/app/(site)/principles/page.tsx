@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { getPayloadClient } from "@/lib/payload";
+import { cmsGlobal } from "@/lib/cms";
 
 export const metadata: Metadata = {
   title: "หลักการคัดข้อมูล | Petster",
@@ -7,8 +7,7 @@ export const metadata: Metadata = {
 };
 
 export default async function PrinciplesPage() {
-  const payload = await getPayloadClient();
-  const settings = await payload.findGlobal({ slug: "settings" });
+  const settings = await cmsGlobal<{ healthDisclaimer?: string }>("settings");
 
   return (
     <main className="shell section">

@@ -1,5 +1,26 @@
 import { getPayload } from "payload";
 
+function toRichText(text: string) {
+  const paragraphs = text.split(/\n\n+/).filter(Boolean);
+  return {
+    root: {
+      type: "root",
+      children: paragraphs.map((p) => ({
+        type: "paragraph",
+        children: [{ type: "text", text: p, format: 0, version: 1 }],
+        direction: "ltr",
+        format: "",
+        indent: 0,
+        version: 1,
+      })),
+      direction: "ltr",
+      format: "",
+      indent: 0,
+      version: 1,
+    },
+  };
+}
+
 type CategorySeed = {
   name: string;
   slug: string;
@@ -335,7 +356,7 @@ export async function seedDatabase() {
       animal: art.animal,
       category: categoryId,
       excerpt: art.excerpt,
-      body: art.body,
+      body: toRichText(art.body),
       heroImageUrl: art.heroImageUrl,
       sources: art.sources,
       faq: art.faq,

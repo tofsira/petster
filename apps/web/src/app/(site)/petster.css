@@ -830,6 +830,71 @@ h3 {
   margin-right: 0.3rem;
 }
 
+/* Content Blocks */
+.block-callout {
+  padding: 1rem 1.1rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.block-callout-tip {
+  background: rgba(27, 138, 134, 0.08);
+  border-left: 3px solid var(--primary);
+}
+
+.block-callout-warning {
+  background: rgba(230, 139, 116, 0.1);
+  border-left: 3px solid var(--accent);
+}
+
+.block-callout-info {
+  background: rgba(23, 48, 56, 0.06);
+  border-left: 3px solid var(--muted);
+}
+
+.block-callout-label {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin-bottom: 0.4rem;
+  color: var(--primary);
+}
+
+.block-callout-warning .block-callout-label {
+  color: var(--accent);
+}
+
+.block-callout-info .block-callout-label {
+  color: var(--muted);
+}
+
+.block-image {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.block-image figure {
+  aspect-ratio: 16 / 9;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 1px solid var(--line);
+}
+
+.block-image figure img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.block-image figcaption {
+  font-size: 0.85rem;
+  color: var(--muted);
+  text-align: center;
+}
+
 .article-sources h2,
 .article-faq h2,
 .article-related h2 {

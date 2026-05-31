@@ -77,7 +77,11 @@ export interface Config {
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
   };
-  collectionsJoins: {};
+  collectionsJoins: {
+    authors: {
+      articles: 'articles';
+    };
+  };
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
@@ -228,6 +232,10 @@ export interface Category {
 export interface Author {
   id: number;
   name: string;
+  /**
+   * อีเมลผู้เขียน (ไม่แสดงสาธารณะ)
+   */
+  email?: string | null;
   role?: ('veterinarian' | 'editor' | 'contributor') | null;
   /**
    * เช่น DVM, M.Sc.
@@ -235,6 +243,14 @@ export interface Author {
   credentials?: string | null;
   bio?: string | null;
   avatar?: (number | null) | Media;
+  /**
+   * บทความทั้งหมดของผู้เขียนนี้
+   */
+  articles?: {
+    docs?: (number | Article)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
   updatedAt: string;
   createdAt: string;
 }
@@ -250,16 +266,12 @@ export interface Article {
    */
   slug: string;
   animal: 'dog' | 'cat';
+  publishedAt?: string | null;
   category: number | Category;
   /**
    * สรุปสั้นๆ ใช้ในการ์ดและ meta description
    */
   excerpt?: string | null;
-  heroImage?: (number | null) | Media;
-  /**
-   * ใช้ external URL ถ้ายังไม่ได้ upload heroImage
-   */
-  heroImageUrl?: string | null;
   body?: {
     root: {
       type: string;
@@ -275,6 +287,11 @@ export interface Article {
     };
     [k: string]: unknown;
   } | null;
+  heroImage?: (number | null) | Media;
+  /**
+   * ใช้ external URL ถ้ายังไม่ได้ upload heroImage
+   */
+  heroImageUrl?: string | null;
   sources?:
     | {
         label: string;
@@ -289,8 +306,11 @@ export interface Article {
         id?: string | null;
       }[]
     | null;
+  /**
+   * เวลาอ่านโดยประมาณ (นาที)
+   */
+  readingTimeMinutes?: number | null;
   author?: (number | null) | Author;
-  publishedAt?: string | null;
   featured?: boolean | null;
   seo?: {
     metaTitle?: string | null;
@@ -488,10 +508,12 @@ export interface CategoriesSelect<T extends boolean = true> {
  */
 export interface AuthorsSelect<T extends boolean = true> {
   name?: T;
+  email?: T;
   role?: T;
   credentials?: T;
   bio?: T;
   avatar?: T;
+  articles?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -503,11 +525,12 @@ export interface ArticlesSelect<T extends boolean = true> {
   title?: T;
   slug?: T;
   animal?: T;
+  publishedAt?: T;
   category?: T;
   excerpt?: T;
+  body?: T;
   heroImage?: T;
   heroImageUrl?: T;
-  body?: T;
   sources?:
     | T
     | {
@@ -522,8 +545,8 @@ export interface ArticlesSelect<T extends boolean = true> {
         answer?: T;
         id?: T;
       };
+  readingTimeMinutes?: T;
   author?: T;
-  publishedAt?: T;
   featured?: T;
   seo?:
     | T
@@ -591,6 +614,18 @@ export interface Setting {
         id?: string | null;
       }[]
     | null;
+  /**
+   * JSON-LD schema markup สำหรับ SEO (Organization, WebSite ฯลฯ)
+   */
+  schemaMarkup?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -609,6 +644,7 @@ export interface SettingsSelect<T extends boolean = true> {
         url?: T;
         id?: T;
       };
+  schemaMarkup?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

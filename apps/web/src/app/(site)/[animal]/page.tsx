@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { getPayloadClient } from "@/lib/payload";
+import { cmsFind } from "@/lib/cms";
 import { getAnimalStaticParams } from "@/lib/cms-paths";
 import { slugToAnimal, animalLabel, animalToSlug, categoryUrl, articleUrl } from "@/lib/url";
 
@@ -12,18 +12,13 @@ async function getAnimalData(animalSlug: string) {
   const animal = slugToAnimal(animalSlug);
   if (!animal) return null;
 
-  const payload = await getPayloadClient();
   const [categories, latest] = await Promise.all([
-    payload.find({
-      collection: "categories",
-      where: {
-        or: [{ animal: { equals: animal } }, { animal: { equals: "both" } }],
-      },
+    cmsFind<any>("categories", {
+      where: { or: [{ animal: { equals: animal } }, { animal: { equals: "both" } }] },
       sort: "name",
       limit: 12,
     }),
-    payload.find({
-      collection: "articles",
+    cmsFind<any>("articles", {
       where: { animal: { equals: animal } },
       sort: "-publishedAt",
       depth: 1,
