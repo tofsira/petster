@@ -48,8 +48,9 @@ Deploy as a separate Vercel project from the same Git repo.
 
 Recommended project settings:
 
-- Build command: `npm run build:cms`
-- Output directory: `apps/cms/.next`
+- Root directory: `apps/cms`
+- Build command: `npm run build`
+- Output directory: `.next`
 - Install command: `npm install`
 - Required env: `DATABASE_URI`, `PAYLOAD_SECRET`
 - Optional env: `BLOB_READ_WRITE_TOKEN` for Vercel Blob media uploads

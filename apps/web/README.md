@@ -41,7 +41,8 @@ Deploy as a separate Vercel project from the same Git repo.
 
 Recommended project settings:
 
-- Build command: `npm run build:web`
-- Output directory: `apps/web/.next`
+- Root directory: `apps/web`
+- Build command: `npm run build`
+- Output directory: `.next`
 - Install command: `npm install`
 - Required env: `CMS_URL`, `NEXT_PUBLIC_SITE_URL`

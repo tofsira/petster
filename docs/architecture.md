@@ -64,10 +64,11 @@ Use one Git repo with two Vercel projects:
 
 | Vercel project | App | Build command | Output directory |
 |---|---|---|---|
-| `cms` | `apps/cms` | `npm run build:cms` | `apps/cms/.next` |
-| `web` | `apps/web` | `npm run build:web` | `apps/web/.next` |
+| `petster-cms` | `apps/cms` | `npm run build` | `.next` |
+| `web` | `apps/web` | `npm run build` | `.next` |
 
-Both projects should install from the repo root with `npm install`.
+Set each Vercel project's Root Directory to its app folder. Each app has its own
+`vercel.json`; do not use one root `vercel.json` for both apps.
 
 Required production env:
 
