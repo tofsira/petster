@@ -165,15 +165,23 @@ Installed and running:
 - Media storage: local in dev, Vercel Blob in prod (auto-enabled when `BLOB_READ_WRITE_TOKEN` is set)
 - Fonts: Prompt (display) + Sarabun (body) via `next/font/google`
 
-App lives in `petster-app/`. Static HTML mocks are in `legacy/` for reference only.
+Monorepo (npm workspaces). The Payload **schema** (config, collections, globals,
+types) lives once in `packages/shared` (`@petster/shared`); two apps consume it
+through the Payload Local API:
+
+- `apps/web` — public site, read-only, deploys to Vercel
+- `apps/cms` — Payload admin + REST/GraphQL, the editing backend (e.g. Railway)
+
+Both connect to the same database. Run `npm install` at the repo **root**. Static
+HTML/CSS design experiments live in `design-lab/`.
 
 ## Running the App
 
 ```bash
-cd petster-app
-npm run dev        # http://localhost:3000
-                   # Admin: http://localhost:3000/admin
-npm run seed       # populate 4 categories + 10 sample articles
+npm install            # run at the repo ROOT (links @petster/shared into both apps)
+npm run dev:cms        # Payload admin → http://localhost:3000/admin
+npm run seed           # populate 4 categories + 10 sample articles (via cms)
+npm run dev:web        # public site (use a second port, e.g. PORT=3001)
 ```
 
 ## Implemented Pages
@@ -191,7 +199,7 @@ npm run seed       # populate 4 categories + 10 sample articles
 ## Key Files
 
 ```
-petster-app/src/
+packages/shared/src/           # @petster/shared — schema, shared by both apps
 ├── payload.config.ts          # DB adapter switch + Vercel Blob plugin
 ├── collections/
 │   ├── Articles.ts            # title, slug, animal, category, excerpt, heroImage|heroImageUrl, body, sources, faq, seo
@@ -200,6 +208,11 @@ petster-app/src/
 │   ├── Media.ts               # upload (Vercel Blob in prod)
 │   └── Users.ts               # admin auth
 ├── globals/Settings.ts        # siteName, healthDisclaimer
+├── payload-types.ts           # generated — `npm run generate:types`
+└── index.ts                   # exports config + types
+
+apps/web/src/                  # public site (Local API reads) → Vercel
+├── payload.config.ts          # 1-line re-export of @petster/shared/config
 ├── lib/
 │   ├── payload.ts             # getPayloadClient()
 │   └── url.ts                 # animal singular↔plural helpers
@@ -209,13 +222,16 @@ petster-app/src/
 └── app/
     ├── layout.tsx             # pass-through root
     ├── sitemap.ts, robots.ts
-    ├── (site)/                # public website routes
-    │   ├── layout.tsx         # html/body + fonts + chrome
-    │   ├── petster.css        # design system CSS
-    │   ├── page.tsx           # homepage
-    │   ├── principles/page.tsx
-    │   └── [animal]/[category]/[slug]/page.tsx
-    └── (payload)/             # Payload admin + API (auto-generated)
+    └── (site)/                # public website routes
+        ├── layout.tsx         # html/body + fonts + chrome
+        ├── petster.css        # design system CSS
+        ├── page.tsx           # homepage
+        ├── principles/page.tsx
+        └── [animal]/[category]/[slug]/page.tsx
+
+apps/cms/src/                  # editing backend (Local API reads + writes) → Railway
+├── payload.config.ts          # 1-line re-export of @petster/shared/config
+└── app/(payload)/             # Payload admin (/admin) + API (/api), auto-generated
 ```
 
 ## Schema Notes
@@ -226,14 +242,13 @@ petster-app/src/
 
 ## Seed Script
 
-`scripts/seed.ts` is upsert-safe (creates or updates). Re-run anytime to reset content:
+`apps/cms/scripts/seed.ts` is upsert-safe (creates or updates). Re-run anytime to reset content:
 
 ```bash
-cd petster-app
-npm run seed
+npm run seed            # from repo root — runs in apps/cms
 ```
 
-Run a custom one-off script: `npx tsx --env-file=.env scripts/your-script.ts`
+Run a custom one-off script from `apps/cms`: `npx tsx --env-file=.env scripts/your-script.ts`
 
 ```typescript
 import { getPayload } from 'payload'

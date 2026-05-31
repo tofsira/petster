@@ -22,40 +22,44 @@ Phase 1 scope:
 ## Repository Structure
 
 ```
-pet _website/
-├── legacy/              # Static HTML mock (reference only, do not edit)
-│   ├── index.html
-│   ├── dogs-health.html
-│   ├── script.js
-│   └── styles.css
-└── petster-app/         # Main application — work here
-    ├── src/
-    │   ├── app/             # Next.js App Router
-    │   │   ├── layout.tsx       # pass-through root layout
-    │   │   ├── sitemap.ts, robots.ts
-    │   │   ├── (site)/          # public routes — html/body + Petster CSS lives here
-    │   │   └── (payload)/       # Payload admin (/admin) + REST/GraphQL (/api)
-    │   ├── collections/     # Payload collections
-    │   ├── globals/         # Payload globals
-    │   ├── components/      # shared React components (site-chrome, reveal)
-    │   ├── lib/             # payload client + URL helpers
-    │   └── payload.config.ts
-    ├── scripts/
-    │   └── seed.ts          # upsert 4 categories + 10 articles
-    ├── public/
-    ├── .env                 # Copy from .env.example
-    └── package.json
+pet_website/                 # npm-workspaces monorepo — run `npm install` at ROOT
+├── apps/
+│   ├── web/             # Next.js public site — reads via Payload Local API → Vercel
+│   │   └── src/
+│   │       ├── app/
+│   │       │   ├── layout.tsx       # pass-through root layout
+│   │       │   ├── sitemap.ts, robots.ts
+│   │       │   └── (site)/          # public routes — html/body + Petster CSS
+│   │       ├── components/      # site-chrome, reveal-on-scroll
+│   │       ├── lib/             # payload client (Local API) + URL helpers
+│   │       └── payload.config.ts   # 1-line re-export of @petster/shared/config
+│   ├── cms/             # Payload admin (/admin) + REST/GraphQL (/api) → Railway
+│   │   ├── src/app/(payload)/   # admin + api routes (auto-generated)
+│   │   ├── scripts/seed.ts      # upsert 4 categories + 10 articles (writes here)
+│   │   └── src/payload.config.ts # 1-line re-export of @petster/shared/config
+│   └── automation/      # Future Google Sheet / MCP / AI draft workflows
+├── packages/
+│   ├── shared/          # @petster/shared — Payload SCHEMA: payload.config.ts,
+│   │   └── src/         #   collections, globals, payload-types (source of truth)
+│   ├── seo/             # SEO helpers (stub)
+│   └── prompts/         # AI tone, brief, workflow rules (stub)
+└── design-lab/          # Static HTML/CSS design experiments
 ```
+
+`web` and `cms` are **separate apps** that share one schema (`@petster/shared`)
+and one database. Both still use the Payload Local API — no HTTP fetch layer.
+Edit collections/globals in `packages/shared`, not inside an app.
 
 ## Running the App
 
 ```bash
-cd petster-app
-npm install
-cp ../.env.example .env   # edit PAYLOAD_SECRET
-npm run dev               # http://localhost:3000
-# Admin panel: http://localhost:3000/admin
-npm run seed              # populate sample content (idempotent)
+npm install                     # at repo ROOT — links @petster/shared into both apps
+cp .env.example apps/cms/.env   # set PAYLOAD_SECRET + DATABASE_URI
+cp .env.example apps/web/.env   # same DATABASE_URI (web is the read-only side)
+
+npm run dev:cms                 # Payload backend → http://localhost:3000/admin
+npm run seed                    # upsert sample content (writes through cms)
+npm run dev:web                 # public site (use a second port, e.g. PORT=3001)
 ```
 
 ## Brand Direction
@@ -133,7 +137,7 @@ Avoid:
 
 ## Payload Collections
 
-### Articles (`src/collections/Articles.ts`)
+### Articles (`packages/shared/src/collections/Articles.ts`)
 
 | Field | Type | Notes |
 |---|---|---|
@@ -154,7 +158,7 @@ Avoid:
 | `seo.metaDescription` | textarea | |
 | `seo.ogImage` | upload → media | |
 
-### Categories (`src/collections/Categories.ts`)
+### Categories (`packages/shared/src/collections/Categories.ts`)
 
 | Field | Type | Notes |
 |---|---|---|
@@ -167,7 +171,7 @@ Avoid:
 | `seo.metaTitle` | text | |
 | `seo.metaDescription` | textarea | |
 
-### Authors (`src/collections/Authors.ts`)
+### Authors (`packages/shared/src/collections/Authors.ts`)
 
 | Field | Type | Notes |
 |---|---|---|
@@ -177,7 +181,7 @@ Avoid:
 | `bio` | textarea | |
 | `avatar` | upload → media | |
 
-### Settings (global, `src/globals/Settings.ts`)
+### Settings (global, `packages/shared/src/globals/Settings.ts`)
 
 | Field | Type | Notes |
 |---|---|---|
@@ -220,8 +224,8 @@ await payload.create({
 
 รัน script ด้วย:
 ```bash
-cd petster-app
-npx tsx scripts/seed-article.ts
+cd apps/cms
+npx tsx --env-file=.env scripts/seed-article.ts
 ```
 
 Phase 1 article rules:

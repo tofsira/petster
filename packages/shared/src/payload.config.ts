@@ -30,11 +30,18 @@ const isPostgres =
 const allowSchemaPush =
   process.env.PAYLOAD_DB_PUSH === "true" ||
   (isPostgres ? process.env.NODE_ENV !== "production" : true);
+const hasBlobToken = Boolean(process.env.BLOB_READ_WRITE_TOKEN);
 
 export default buildConfig({
   admin: {
     user: Users.slug,
-    importMap: { baseDir: path.resolve(dirname) },
+    importMap: {
+      // apps/cms sets PAYLOAD_IMPORTMAP_BASEDIR so `generate:importmap` writes
+      // into its own src/app/(payload)/admin. Default is harmless at runtime.
+      baseDir: process.env.PAYLOAD_IMPORTMAP_BASEDIR
+        ? path.resolve(process.env.PAYLOAD_IMPORTMAP_BASEDIR)
+        : path.resolve(dirname, "../../apps/cms/src"),
+    },
   },
   collections: [Users, Media, Categories, Authors, Articles],
   globals: [Settings],
@@ -51,13 +58,15 @@ export default buildConfig({
     : sqliteAdapter({
         client: { url: databaseUri },
       }),
-  plugins: [
-    vercelBlobStorage({
-      enabled: Boolean(process.env.BLOB_READ_WRITE_TOKEN),
-      collections: { media: true },
-      token: process.env.BLOB_READ_WRITE_TOKEN || "",
-      clientUploads: true,
-    }),
-  ],
+  plugins: hasBlobToken
+    ? [
+        vercelBlobStorage({
+          enabled: true,
+          collections: { media: true },
+          token: process.env.BLOB_READ_WRITE_TOKEN || "",
+          clientUploads: true,
+        }),
+      ]
+    : [],
   sharp,
 });

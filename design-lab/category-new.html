@@ -1,0 +1,806 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>สุขภาพสุนัข | Petster Category Lab</title>
+    <meta name="description" content="Mobile-first category page prototype for Petster" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Prompt:wght@500;600;700&family=Sarabun:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #eef4f3;
+        --surface: #ffffff;
+        --soft: #f7fbfa;
+        --ink: #173038;
+        --muted: #63757a;
+        --line: rgba(23, 48, 56, 0.1);
+        --teal: #1b8a86;
+        --teal-soft: #d9eeeb;
+        --coral: #e68b74;
+        --warning: #fff4df;
+        --radius-sm: 8px;
+        --radius-md: 12px;
+        --shadow-soft: 0 8px 16px rgba(13, 52, 54, 0.06);
+        --shadow-float: 0 12px 24px rgba(13, 52, 54, 0.1);
+        --shell: 1120px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-width: 320px;
+        font-family: "Sarabun", sans-serif;
+        color: var(--ink);
+        background: linear-gradient(180deg, #f8fbfb 0%, var(--bg) 100%);
+        line-height: 1.62;
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      img {
+        display: block;
+        width: 100%;
+      }
+
+      figure {
+        margin: 0;
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin: 0;
+      }
+
+      h1,
+      h2,
+      h3,
+      .brand {
+        font-family: "Prompt", sans-serif;
+        letter-spacing: 0;
+      }
+
+      .shell {
+        width: min(calc(100% - 28px), var(--shell));
+        margin: 0 auto;
+      }
+
+      .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        border-bottom: 1px solid var(--line);
+        background: rgba(247, 250, 249, 0.92);
+        backdrop-filter: blur(14px);
+      }
+
+      .nav {
+        min-height: 58px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 9px;
+        font-weight: 700;
+      }
+
+      .brand-mark {
+        display: grid;
+        place-items: center;
+        width: 30px;
+        height: 30px;
+        border-radius: var(--radius-sm);
+        color: #fff;
+        background: var(--teal);
+      }
+
+      .nav-link {
+        padding: 7px 10px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        color: var(--teal);
+        background: var(--surface);
+        font-size: 0.88rem;
+        font-weight: 800;
+      }
+
+      .nav-menu {
+        display: none;
+      }
+
+      .hero {
+        padding: 16px 0 12px;
+      }
+
+      .crumbs {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        margin-bottom: 12px;
+        color: var(--muted);
+        font-size: 0.86rem;
+        font-weight: 700;
+      }
+
+      .crumbs strong {
+        color: var(--ink);
+      }
+
+      .hero-card {
+        overflow: hidden;
+        border: 1px solid var(--line);
+        border-radius: var(--radius-md);
+        background: var(--surface);
+      }
+
+      .hero-photo {
+        position: relative;
+        height: 138px;
+        overflow: hidden;
+        background: #123238;
+      }
+
+      .hero-photo img {
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .hero-photo::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(0deg, rgba(9, 41, 45, 0.62), transparent 58%);
+      }
+
+      .hero-body {
+        padding: 1.05rem;
+        display: grid;
+        gap: 10px;
+      }
+
+      .kicker {
+        color: var(--teal);
+        font-size: 0.82rem;
+        font-weight: 800;
+      }
+
+      h1 {
+        font-size: clamp(1.9rem, 9vw, 2.75rem);
+        line-height: 1.08;
+        text-wrap: balance;
+      }
+
+      .hero-lead {
+        color: var(--muted);
+        font-size: 1rem;
+        line-height: 1.62;
+      }
+
+      .trust-note {
+        display: flex;
+        gap: 10px;
+        padding: 11px 12px;
+        border-radius: var(--radius-sm);
+        background: var(--warning);
+        color: #5c4a22;
+        font-size: 0.9rem;
+        line-height: 1.55;
+      }
+
+      .trust-note b {
+        color: #8a5420;
+      }
+
+      .quick-row {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        padding: 12px 0 2px;
+      }
+
+      .quick {
+        min-width: 0;
+        padding: 10px 8px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius-sm);
+        background: var(--surface);
+        text-align: center;
+      }
+
+      .quick b {
+        display: block;
+        color: var(--teal);
+        font-size: 1.05rem;
+        line-height: 1;
+      }
+
+      .quick span {
+        display: block;
+        margin-top: 5px;
+        color: var(--muted);
+        font-size: 0.76rem;
+        font-weight: 700;
+        line-height: 1.3;
+      }
+
+      .topic-strip {
+        display: flex;
+        gap: 8px;
+        overflow-x: auto;
+        padding: 10px 0 16px;
+        scrollbar-width: none;
+      }
+
+      .topic-strip::-webkit-scrollbar {
+        display: none;
+      }
+
+      .topic {
+        flex: 0 0 auto;
+        padding: 8px 12px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: var(--surface);
+        color: var(--muted);
+        font-size: 0.88rem;
+        font-weight: 800;
+      }
+
+      .topic.active {
+        color: white;
+        border-color: var(--teal);
+        background: var(--teal);
+      }
+
+      .section-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin: 8px 0 10px;
+      }
+
+      h2 {
+        font-size: 1.32rem;
+        line-height: 1.22;
+      }
+
+      .section-head span {
+        color: var(--muted);
+        font-size: 0.86rem;
+        font-weight: 800;
+        white-space: nowrap;
+      }
+
+      .featured {
+        display: grid;
+        overflow: hidden;
+        border: 1px solid var(--line);
+        border-radius: var(--radius-md);
+        background: var(--surface);
+        transition:
+          box-shadow 180ms ease,
+          transform 180ms ease;
+      }
+
+      .featured img {
+        height: 170px;
+        object-fit: cover;
+        transition: transform 220ms ease;
+      }
+
+      .featured-body {
+        padding: 14px;
+        display: grid;
+        gap: 8px;
+      }
+
+      .tags {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+      }
+
+      .tag {
+        padding: 4px 8px;
+        border-radius: 999px;
+        background: var(--teal-soft);
+        color: #075d59;
+        font-size: 0.76rem;
+        font-weight: 800;
+      }
+
+      .tag.hot {
+        background: #ffe1d6;
+        color: #9b3f25;
+      }
+
+      h3 {
+        font-size: 1.08rem;
+        line-height: 1.32;
+        text-wrap: pretty;
+      }
+
+      .featured h3 {
+        font-size: 1.25rem;
+      }
+
+      .summary {
+        color: var(--muted);
+        font-size: 0.95rem;
+      }
+
+      .story-list {
+        display: grid;
+        gap: 10px;
+        padding: 12px 0 30px;
+      }
+
+      .story {
+        display: grid;
+        grid-template-columns: 96px minmax(0, 1fr);
+        min-height: 108px;
+        overflow: hidden;
+        border: 1px solid var(--line);
+        border-radius: var(--radius-md);
+        background: var(--surface);
+        transition:
+          box-shadow 180ms ease,
+          transform 180ms ease;
+      }
+
+      .story img {
+        height: 100%;
+        object-fit: cover;
+        transition: transform 220ms ease;
+      }
+
+      .story-body {
+        min-width: 0;
+        padding: 11px 12px;
+        display: grid;
+        align-content: center;
+        gap: 6px;
+      }
+
+      .meta {
+        display: flex;
+        gap: 7px;
+        flex-wrap: wrap;
+        color: var(--coral);
+        font-size: 0.75rem;
+        font-weight: 800;
+      }
+
+      .story p {
+        display: none;
+        color: var(--muted);
+        font-size: 0.92rem;
+      }
+
+      .paths {
+        display: grid;
+        gap: 8px;
+        padding-bottom: 64px;
+      }
+
+      .desktop-note {
+        display: none;
+      }
+
+      .path {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 14px;
+        padding: 13px 14px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius-md);
+        background: var(--surface);
+        color: var(--muted);
+        font-weight: 800;
+        transition:
+          border-color 180ms ease,
+          color 180ms ease,
+          transform 180ms ease;
+      }
+
+      .path span:last-child {
+        color: var(--teal);
+      }
+
+      .featured:hover,
+      .story:hover {
+        box-shadow: var(--shadow-float);
+        transform: translateY(-2px);
+      }
+
+      .featured:hover img,
+      .story:hover img {
+        transform: scale(1.03);
+      }
+
+      .path:hover {
+        border-color: rgba(13, 118, 113, 0.32);
+        color: var(--teal);
+        transform: translateY(-1px);
+      }
+
+      @media (min-width: 720px) {
+        .shell {
+          width: min(calc(100% - 44px), var(--shell));
+        }
+
+        .nav {
+          min-height: 70px;
+        }
+
+        .brand-mark {
+          width: 36px;
+          height: 36px;
+        }
+
+        .nav-menu {
+          display: flex;
+          align-items: center;
+          gap: 18px;
+          color: var(--muted);
+          font-size: 0.94rem;
+          font-weight: 800;
+        }
+
+        .nav-menu a:first-child {
+          color: var(--teal);
+        }
+
+        .nav-link {
+          padding: 9px 14px;
+        }
+
+        .hero {
+          padding-top: 26px;
+        }
+
+        .hero-card {
+          display: grid;
+          grid-template-columns: minmax(0, 1fr) 320px;
+        }
+
+        .hero-photo {
+          height: auto;
+          min-height: 270px;
+          order: 2;
+        }
+
+        .hero-body {
+          padding: 1.4rem;
+          align-content: center;
+          gap: 14px;
+        }
+
+        h1 {
+          max-width: 11ch;
+          font-size: clamp(2.6rem, 4.8vw, 3.8rem);
+        }
+
+        .hero-lead {
+          max-width: 54ch;
+          font-size: 1.06rem;
+        }
+
+        .quick-row {
+          grid-template-columns: repeat(3, minmax(150px, 1fr));
+          max-width: 620px;
+          gap: 10px;
+          padding-top: 14px;
+        }
+
+        .quick {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 10px;
+          min-height: 64px;
+          text-align: left;
+        }
+
+        .quick b {
+          font-size: 1.28rem;
+        }
+
+        .quick span {
+          margin-top: 0;
+          font-size: 0.85rem;
+        }
+
+        .topic-strip {
+          padding-bottom: 22px;
+        }
+
+        .topic {
+          padding: 10px 15px;
+        }
+
+        h2 {
+          font-size: 1.55rem;
+        }
+
+        .section-head {
+          margin-top: 10px;
+          margin-bottom: 14px;
+        }
+
+        .content-grid {
+          display: grid;
+          grid-template-columns: minmax(0, 1fr) 310px;
+          gap: 24px;
+          align-items: start;
+        }
+
+        .featured {
+          grid-template-columns: minmax(280px, 0.9fr) minmax(0, 1.1fr);
+        }
+
+        .featured img {
+          height: 100%;
+          min-height: 286px;
+        }
+
+        .featured-body {
+          padding: 24px;
+          align-content: center;
+        }
+
+        .featured h3 {
+          font-size: 1.7rem;
+          line-height: 1.22;
+        }
+
+        .story-list {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 14px;
+          padding-top: 16px;
+        }
+
+        .story {
+          grid-template-columns: 1fr;
+          min-height: 0;
+        }
+
+        .story img {
+          height: auto;
+          aspect-ratio: 4 / 3;
+        }
+
+        .story-body {
+          min-height: 0;
+          align-content: start;
+          padding: 1.05rem;
+        }
+
+        .story h3 {
+          font-size: 1.12rem;
+        }
+
+        .story p {
+          display: block;
+        }
+
+        .paths {
+          position: sticky;
+          top: 82px;
+          padding-bottom: 0;
+          gap: 10px;
+        }
+
+        .path {
+          padding: 15px 16px;
+        }
+
+        .desktop-note {
+          display: block;
+          padding: 16px;
+          border: 1px solid var(--line);
+          border-radius: var(--radius-md);
+          background: var(--soft);
+          color: var(--muted);
+          font-weight: 700;
+          line-height: 1.6;
+        }
+      }
+
+      @media (min-width: 1040px) {
+        .hero-card {
+          grid-template-columns: minmax(0, 1fr) 360px;
+        }
+
+        .hero-photo {
+          min-height: 310px;
+        }
+
+        .hero-body {
+          padding: 1.7rem;
+        }
+
+        .content-grid {
+          grid-template-columns: minmax(0, 1fr) 340px;
+          gap: 28px;
+        }
+
+        .story-list {
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="shell nav">
+        <a class="brand" href="./index.html" aria-label="Petster">
+          <span class="brand-mark">P</span>
+          <span>Petster</span>
+        </a>
+        <nav class="nav-menu" aria-label="หมวดหลัก">
+          <a href="#">สุขภาพ</a>
+          <a href="#">อาหาร</a>
+          <a href="#">พฤติกรรม</a>
+          <a href="#">ดูแลประจำวัน</a>
+        </nav>
+        <a class="nav-link" href="#">หลักการคัดข้อมูล</a>
+      </div>
+    </header>
+
+    <main>
+      <section class="shell hero">
+        <nav class="crumbs" aria-label="Breadcrumb">
+          <a href="./index.html">หน้าแรก</a>
+          <span>/</span>
+          <a href="#">สุนัข</a>
+          <span>/</span>
+          <strong>สุขภาพ</strong>
+        </nav>
+
+        <article class="hero-card">
+          <figure class="hero-photo">
+            <img
+              src="https://images.unsplash.com/photo-1583337130417-3346a1be7dee?auto=format&fit=crop&w=1400&q=82"
+              alt="สุนัขกำลังตรวจสุขภาพ"
+            />
+          </figure>
+          <div class="hero-body">
+            <p class="kicker">คู่มือสุขภาพ</p>
+            <h1>สุขภาพสุนัข</h1>
+            <p class="hero-lead">
+              อ่านอาการให้เป็น ดูแลเบื้องต้นให้ถูก และรู้ว่าเมื่อไรควรพาไปพบสัตวแพทย์
+            </p>
+            <div class="trust-note">
+              <b>หมายเหตุ</b>
+              <span>ข้อมูลสุขภาพเป็นคำแนะนำทั่วไป ไม่แทนการวินิจฉัยจากสัตวแพทย์</span>
+            </div>
+          </div>
+        </article>
+
+        <div class="quick-row" aria-label="Category summary">
+          <div class="quick"><b>24</b><span>บทความ</span></div>
+          <div class="quick"><b>8</b><span>อ่านก่อน</span></div>
+          <div class="quick"><b>4</b><span>หัวข้อย่อย</span></div>
+        </div>
+      </section>
+
+      <nav class="shell topic-strip" aria-label="หัวข้อย่อย">
+        <a class="topic active" href="#">ทั้งหมด</a>
+        <a class="topic" href="#">อาการ</a>
+        <a class="topic" href="#">วัคซีน</a>
+        <a class="topic" href="#">ผิวหนัง</a>
+        <a class="topic" href="#">ฟัน</a>
+        <a class="topic" href="#">สูงวัย</a>
+      </nav>
+
+      <section class="shell content-grid">
+        <div>
+          <header class="section-head">
+            <h2>บทความแนะนำ</h2>
+            <span>ล่าสุด</span>
+          </header>
+
+          <a class="featured" href="#">
+            <img
+              src="https://images.unsplash.com/photo-1551730459-92db2a308d6a?auto=format&fit=crop&w=1200&q=82"
+              alt="สุนัขนอนพักในบ้าน"
+            />
+            <div class="featured-body">
+              <div class="tags">
+                <span class="tag hot">ควรอ่านก่อน</span>
+                <span class="tag">อาการ</span>
+              </div>
+              <h3>สุนัขอาเจียน เมื่อไรควรพาไปหาหมอ</h3>
+              <p class="summary">
+                อาเจียนครั้งเดียวอาจไม่อันตราย แต่บางสัญญาณบอกว่าควรติดต่อคลินิกโดยเร็ว
+              </p>
+            </div>
+          </a>
+
+          <div class="story-list">
+            <a class="story" href="#">
+              <img
+                src="https://images.unsplash.com/photo-1587300003388-59208cc962cb?auto=format&fit=crop&w=720&q=82"
+                alt="ลูกสุนัข"
+              />
+              <div class="story-body">
+                <div class="meta"><span>วัคซีน</span><span>5 นาที</span></div>
+                <h3>ตารางวัคซีนพื้นฐานสำหรับลูกสุนัข</h3>
+                <p>เข้าใจช่วงเวลาและเหตุผลของวัคซีนหลักที่เจ้าของควรรู้</p>
+              </div>
+            </a>
+
+            <a class="story" href="#">
+              <img
+                src="https://images.unsplash.com/photo-1598133894008-61f7fdb8cc3a?auto=format&fit=crop&w=720&q=82"
+                alt="สุนัขพักผ่อนในบ้าน"
+              />
+              <div class="story-body">
+                <div class="meta"><span>ฉุกเฉิน</span><span>4 นาที</span></div>
+                <h3>สัญญาณที่ไม่ควรรอดูอาการเอง</h3>
+                <p>อาการที่ควรโทรถามคลินิกทันที พร้อมข้อมูลที่ควรเตรียม</p>
+              </div>
+            </a>
+
+            <a class="story" href="#">
+              <img
+                src="https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=720&q=82"
+                alt="สุนัขสองตัวเดินเล่น"
+              />
+              <div class="story-body">
+                <div class="meta"><span>ป้องกัน</span><span>6 นาที</span></div>
+                <h3>ดูแลเห็บหมัดอย่างไรให้ปลอดภัย</h3>
+                <p>เลือกวิธีป้องกันให้เหมาะกับอายุ น้ำหนัก และไลฟ์สไตล์</p>
+              </div>
+            </a>
+
+            <a class="story" href="#">
+              <img
+                src="https://images.unsplash.com/photo-1525253013412-55c1a69a5738?auto=format&fit=crop&w=720&q=82"
+                alt="สุนัขกำลังเล่น"
+              />
+              <div class="story-body">
+                <div class="meta"><span>ดูแลประจำวัน</span><span>3 นาที</span></div>
+                <h3>เช็กสุขภาพสุนัขที่บ้านแบบง่าย ๆ</h3>
+                <p>สังเกตตา หู ฟัน ผิวหนัง และพฤติกรรมที่เปลี่ยนไป</p>
+              </div>
+            </a>
+          </div>
+        </div>
+
+        <aside class="paths" aria-label="เส้นทางอ่านต่อ">
+          <header class="section-head">
+            <h2>อ่านต่อจากอาการ</h2>
+          </header>
+          <div class="desktop-note">
+            เลือกจากอาการที่เห็นก่อน แล้วค่อยอ่านเรื่องป้องกันหรือดูแลระยะยาวต่อ
+          </div>
+          <a class="path" href="#"><span>หมาไม่กินอาหาร</span><span>7</span></a>
+          <a class="path" href="#"><span>อาเจียนและท้องเสีย</span><span>9</span></a>
+          <a class="path" href="#"><span>คัน เกา ขนร่วง</span><span>6</span></a>
+          <a class="path" href="#"><span>ดูแลสุนัขสูงวัย</span><span>4</span></a>
+        </aside>
+      </section>
+    </main>
+  </body>
+</html>
