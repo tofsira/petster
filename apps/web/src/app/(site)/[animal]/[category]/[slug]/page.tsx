@@ -1,9 +1,17 @@
+import Image from "next/image";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { cmsFind } from "@/lib/cms";
 import { RichText } from "@payloadcms/richtext-lexical/react";
 import { defaultJSXConverters } from "@payloadcms/richtext-lexical/react";
 import { getArticleStaticParams } from "@/lib/cms-paths";
+import {
+  categoryNameFrom,
+  imageFrom,
+  type ArticleDoc,
+  type MediaDoc,
+} from "@/lib/content-types";
 import {
   slugToAnimal,
   animalLabel,
@@ -18,10 +26,14 @@ export const dynamic = "force-static";
 
 const CALLOUT_LABELS = { tip: "💡 เคล็ดลับ", warning: "⚠️ คำเตือน", info: "ℹ️ ข้อมูล" } as const;
 
+type BlockNode = {
+  fields?: unknown;
+};
+
 const bodyConverters = ({ defaultConverters }: { defaultConverters: typeof defaultJSXConverters }) => ({
   ...defaultConverters,
   blocks: {
-    callout: ({ node }: { node: any }) => {
+    callout: ({ node }: { node: BlockNode }) => {
       const { type, message } = node.fields as { type: "tip" | "warning" | "info"; message: string };
       return (
         <div className={`block-callout block-callout-${type}`}>
@@ -30,17 +42,21 @@ const bodyConverters = ({ defaultConverters }: { defaultConverters: typeof defau
         </div>
       );
     },
-    imageBlock: ({ node }: { node: any }) => {
+    imageBlock: ({ node }: { node: BlockNode }) => {
       const { image, caption } = node.fields as {
-        image: { url: string; alt?: string };
+        image: MediaDoc;
         caption?: string;
       };
       if (!image?.url) return null;
       return (
         <div className="block-image">
           <figure>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={image.url} alt={image.alt || caption || ""} />
+            <Image
+              src={image.url}
+              alt={image.alt || caption || ""}
+              fill
+              sizes="(min-width: 900px) 680px, 100vw"
+            />
           </figure>
           {caption && <figcaption>{caption}</figcaption>}
         </div>
@@ -53,7 +69,7 @@ async function getArticle(animalSlug: string, categorySlug: string, slug: string
   const animal = slugToAnimal(animalSlug);
   if (!animal) return null;
 
-  const res = await cmsFind<any>("articles", {
+  const res = await cmsFind<ArticleDoc>("articles", {
     where: {
       and: [
         { slug: { equals: slug } },
@@ -69,7 +85,7 @@ async function getArticle(animalSlug: string, categorySlug: string, slug: string
 }
 
 async function getRelated(animal: Animal, categorySlug: string, excludeSlug: string) {
-  const res = await cmsFind<any>("articles", {
+  const res = await cmsFind<ArticleDoc>("articles", {
     where: {
       and: [
         { animal: { equals: animal } },
@@ -82,15 +98,6 @@ async function getRelated(animal: Animal, categorySlug: string, excludeSlug: str
     limit: 3,
   });
   return res.docs;
-}
-
-function imgFrom(article: Record<string, unknown>) {
-  const upload = article.heroImage as { url?: string; alt?: string } | null;
-  if (upload && typeof upload === "object" && upload.url) {
-    return { url: upload.url, alt: upload.alt || "" };
-  }
-  const url = article.heroImageUrl as string | undefined;
-  return url ? { url, alt: "" } : null;
 }
 
 export async function generateStaticParams() {
@@ -115,9 +122,8 @@ export default async function ArticlePage({ params }: { params: Params }) {
   if (!article) notFound();
 
   const animal = slugToAnimal(animalSlug)!;
-  const categoryObj = article.category as { name: string; slug: string } | string;
-  const categoryName = typeof categoryObj === "string" ? category : categoryObj.name;
-  const hero = imgFrom(article as any);
+  const categoryName = categoryNameFrom(article.category) || category;
+  const hero = imageFrom(article);
   const related = await getRelated(animal, category, slug);
 
   const published = article.publishedAt
@@ -131,11 +137,11 @@ export default async function ArticlePage({ params }: { params: Params }) {
   return (
     <article className="shell article-page">
       <nav className="breadcrumb" aria-label="Breadcrumb">
-        <a href="/">หน้าแรก</a>
+        <Link href="/">หน้าแรก</Link>
         <span aria-hidden="true">›</span>
-        <a href={`/${animalToSlug(animal)}`}>{animalLabel(animal)}</a>
+        <Link href={`/${animalToSlug(animal)}`}>{animalLabel(animal)}</Link>
         <span aria-hidden="true">›</span>
-        <a href={`/${animalToSlug(animal)}/${category}`}>{categoryName}</a>
+        <Link href={`/${animalToSlug(animal)}/${category}`}>{categoryName}</Link>
       </nav>
 
       <header className="article-head">
@@ -149,8 +155,13 @@ export default async function ArticlePage({ params }: { params: Params }) {
 
       {hero && (
         <figure className="article-hero">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={hero.url} alt={hero.alt || article.title} />
+          <Image
+            src={hero.url}
+            alt={hero.alt || article.title}
+            fill
+            sizes="(min-width: 900px) 760px, 100vw"
+            priority
+          />
         </figure>
       )}
 
@@ -168,8 +179,8 @@ export default async function ArticlePage({ params }: { params: Params }) {
           <section className="article-sources">
             <h2>แหล่งอ้างอิง</h2>
             <ul>
-              {article.sources.map((s: { label: string; url?: string }, i: number) => (
-                <li key={i}>
+              {article.sources.map((s) => (
+                <li key={s.id || s.url || s.label}>
                   {s.url ? (
                     <a href={s.url} target="_blank" rel="noopener noreferrer">
                       {s.label}
@@ -187,8 +198,8 @@ export default async function ArticlePage({ params }: { params: Params }) {
           <section className="article-faq">
             <h2>คำถามที่พบบ่อย</h2>
             <dl>
-              {article.faq.map((q: { question: string; answer: string }, i: number) => (
-                <div key={i} className="faq-item">
+              {article.faq.map((q) => (
+                <div key={q.id || q.question} className="faq-item">
                   <dt>{q.question}</dt>
                   <dd>{q.answer}</dd>
                 </div>
@@ -203,22 +214,26 @@ export default async function ArticlePage({ params }: { params: Params }) {
           <h2>อ่านต่อในหมวด {categoryName}</h2>
           <div className="channel-grid">
             {related.map((a) => {
-              const img = imgFrom(a as any);
+              const img = imageFrom(a);
               return (
-                <a
+                <Link
                   key={a.id}
                   className="channel-card"
                   href={articleUrl(animal, category, a.slug)}
                 >
                   {img && (
                     <figure className="channel-card-image">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={img.url} alt={img.alt || a.title} />
+                      <Image
+                        src={img.url}
+                        alt={img.alt || a.title}
+                        fill
+                        sizes="(min-width: 900px) 33vw, (min-width: 640px) 50vw, 100vw"
+                      />
                     </figure>
                   )}
                   <h3>{a.title}</h3>
                   {a.excerpt && <p>{a.excerpt}</p>}
-                </a>
+                </Link>
               );
             })}
           </div>

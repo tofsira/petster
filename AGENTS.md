@@ -1,132 +1,106 @@
 # AGENTS.md
 
-Project guidance for coding agents working on `Petster`.
+Project guidance for coding agents working on Petster.
 
 ## Project Summary
 
-`Petster` is a Thai-language brand + media website focused on trustworthy pet knowledge.
+Petster is a Thai-language brand and media website for trustworthy dog and cat
+knowledge.
 
 Phase 1 scope:
 
 - Audience: dog and cat owners
 - Language: Thai only
-- Product type: read-only content website
+- Product type: read-only public content website
+- Frontend: Next.js 16 + React 19 + TypeScript + Tailwind CSS 4
 - CMS: Payload CMS 3.x
-- Frontend: Next.js 16 + React 19 + TypeScript + Tailwind CSS 4 + shadcn/ui
-- Database: adapter switches by `DATABASE_URI`
-  - `file:./petster.db` → SQLite (`@payloadcms/db-sqlite`, dev default)
-  - `postgresql://…` → Postgres (`@payloadcms/db-postgres`, production)
-- Media: local in dev, Vercel Blob in prod (auto-enabled when `BLOB_READ_WRITE_TOKEN` is set)
-- Fonts: Prompt (display) + Sarabun (body) via `next/font/google`
+- Database: Payload adapter switches by `DATABASE_URI`
+  - `file:./petster.db` -> SQLite dev default
+  - `postgresql://...` -> Postgres production
+- Media: local in dev, Vercel Blob in production when `BLOB_READ_WRITE_TOKEN`
+  is set
+- Fonts: self-hosted Prompt and Sarabun in `apps/web/public/fonts`
 
 ## Repository Structure
 
-```
-pet_website/                 # npm-workspaces monorepo — run `npm install` at ROOT
-├── apps/
-│   ├── web/             # Next.js public site — reads via Payload Local API → Vercel
-│   │   └── src/
-│   │       ├── app/
-│   │       │   ├── layout.tsx       # pass-through root layout
-│   │       │   ├── sitemap.ts, robots.ts
-│   │       │   └── (site)/          # public routes — html/body + Petster CSS
-│   │       ├── components/      # site-chrome, reveal-on-scroll
-│   │       ├── lib/             # payload client (Local API) + URL helpers
-│   │       └── payload.config.ts   # 1-line re-export of @petster/shared/config
-│   ├── cms/             # Payload admin (/admin) + REST/GraphQL (/api) → Railway
-│   │   ├── src/app/(payload)/   # admin + api routes (auto-generated)
-│   │   ├── scripts/seed.ts      # upsert 4 categories + 10 articles (writes here)
-│   │   └── src/payload.config.ts # 1-line re-export of @petster/shared/config
-│   └── automation/      # Future Google Sheet / MCP / AI draft workflows
-├── packages/
-│   ├── shared/          # @petster/shared — Payload SCHEMA: payload.config.ts,
-│   │   └── src/         #   collections, globals, payload-types (source of truth)
-│   ├── seo/             # SEO helpers (stub)
-│   └── prompts/         # AI tone, brief, workflow rules (stub)
-└── design-lab/          # Static HTML/CSS design experiments
+```txt
+pet_website/
+  apps/
+    web/            Public Next.js site. Reads Payload REST API through CMS_URL.
+    cms/            Payload admin, REST API, GraphQL, seed scripts.
+    automation/     Future Google Sheet, MCP, and AI draft workflows.
+  packages/
+    shared/         Payload schema source of truth.
+    seo/            SEO helpers stub.
+    prompts/        AI prompt and editorial workflow stub.
+  design-lab/       Static HTML/CSS design experiments only.
+  docs/             Architecture and content workflow notes.
 ```
 
-`web` and `cms` are **separate apps** that share one schema (`@petster/shared`)
-and one database. Both still use the Payload Local API — no HTTP fetch layer.
-Edit collections/globals in `packages/shared`, not inside an app.
+`apps/web` and `apps/cms` are separate apps. The web app does not contain
+`/admin` or Payload API routes. The CMS app owns `/admin`, `/api`, database
+writes, media uploads, and seeding.
 
-## Running the App
+## Running Locally
+
+Run install from the repo root:
 
 ```bash
-npm install                     # at repo ROOT — links @petster/shared into both apps
-cp .env.example apps/cms/.env   # set PAYLOAD_SECRET + DATABASE_URI
-cp .env.example apps/web/.env   # same DATABASE_URI (web is the read-only side)
-
-npm run dev:cms                 # Payload backend → http://localhost:3000/admin
-npm run seed                    # upsert sample content (writes through cms)
-npm run dev:web                 # public site (use a second port, e.g. PORT=3001)
+npm install
+cp .env.example apps/cms/.env
+npm run dev:cms
 ```
 
-## Brand Direction
+CMS:
 
-The product should feel:
+- Admin: `http://localhost:3000/admin`
+- API: `http://localhost:3000/api`
 
-- warm
-- trustworthy
-- contemporary
-- editorial, not corporate
+Web in another terminal:
 
-Avoid:
+```bash
+$env:CMS_URL="http://localhost:3000"
+$env:PORT="3001"
+npm run dev:web
+```
 
-- cold hospital-like design
-- childish pet-shop design
-- generic SaaS dashboard aesthetics
-- overly minimal Western-style empty layouts
-- cluttered portal-style chaos
+Public site: `http://localhost:3001`
 
-Target design style:
+Seed sample content:
 
-- friendly editorial
-- organized density: medium
-- information-rich, but easy to scan
+```bash
+npm run seed
+```
 
-## Homepage Goals
+## Deploy Model
 
-The homepage must build trust through structure and clarity first.
+Use one Git repo with two Vercel projects:
 
-Recommended homepage order:
+| Project | App | Build command | Output directory |
+|---|---|---|---|
+| `cms` | `apps/cms` | `npm run build:cms` | `apps/cms/.next` |
+| `web` | `apps/web` | `npm run build:web` | `apps/web/.next` |
 
-1. Hero with clear value proposition
-2. Search input for dog and cat questions
-3. Four main categories
-4. Featured articles
-5. Dog section
-6. Cat section
-7. Trust / editorial credibility section
-8. Latest or popular articles
+Both projects should install from the repo root with `npm install`.
 
-Primary CTA:
+Production env:
 
-- `Start reading articles`
+- CMS: `DATABASE_URI`, `PAYLOAD_SECRET`, optional `BLOB_READ_WRITE_TOKEN`
+- Web: `CMS_URL`, `NEXT_PUBLIC_SITE_URL`
 
-## Core Categories
+## Core Routes
 
-Phase 1 primary categories:
+- `/` - homepage
+- `/dogs`, `/cats` - animal hubs
+- `/dogs/[category]`, `/cats/[category]` - category hubs
+- `/[animal]/[category]/[slug]` - article detail
+- `/principles` - editorial trust policy
+- `/sitemap.xml`, `/robots.txt` - generated by the web app
+- `/admin`, `/api`, `/api/graphql` - CMS app only
 
-- health
-- food
-- behavior
-- daily-care
-
-These categories apply to both dogs and cats.
-
-## SEO Structure
-
-Topic-based URL hierarchy — all implemented:
-
-- `/` — homepage
-- `/dogs`, `/cats` — animal hubs
-- `/dogs/[category]`, `/cats/[category]` — category hubs (health / food / behavior / daily-care)
-- `/[animal]/[category]/[slug]` — article detail
-- `/principles` — editorial trust policy
-- `/sitemap.xml`, `/robots.txt` — auto from CMS
-
-URL convention: animal is stored singular in the DB (`dog`, `cat`) but routed plural (`/dogs`, `/cats`). Conversion lives in `src/lib/url.ts` — never hand-format URLs.
+URL convention: `animal` is stored singular in the CMS (`dog`, `cat`) but routed
+plural (`/dogs`, `/cats`). Use `apps/web/src/lib/url.ts`; do not hand-format
+animal URLs.
 
 Avoid:
 
@@ -135,175 +109,98 @@ Avoid:
 - `/article/...`
 - query-string article URLs
 
-## Payload Collections
+## Payload Schema
 
-### Articles (`packages/shared/src/collections/Articles.ts`)
+Schema lives in `packages/shared/src`.
 
-| Field | Type | Notes |
-|---|---|---|
-| `title` | text | required |
-| `slug` | text | required, unique, English only, no spaces |
-| `animal` | select | `"dog"` \| `"cat"` |
-| `category` | relationship → categories | required |
-| `excerpt` | textarea | max 240 chars, used in cards + meta |
-| `heroImage` | upload → media | preferred when uploaded |
-| `heroImageUrl` | text | external URL fallback while building content; remove after upload |
-| `body` | richText (Lexical) | main article content |
-| `sources` | array | `{ label, url }` — แหล่งอ้างอิง |
-| `faq` | array | `{ question, answer }` |
-| `author` | relationship → authors | optional |
-| `publishedAt` | date | |
-| `featured` | checkbox | default false — homepage hero picks latest `featured=true` |
-| `seo.metaTitle` | text | |
-| `seo.metaDescription` | textarea | |
-| `seo.ogImage` | upload → media | |
+Main files:
 
-### Categories (`packages/shared/src/collections/Categories.ts`)
+- `collections/Articles.ts`
+- `collections/Categories.ts`
+- `collections/Authors.ts`
+- `collections/Media.ts`
+- `collections/Users.ts`
+- `globals/Settings.ts`
+- `payload.config.ts`
 
-| Field | Type | Notes |
-|---|---|---|
-| `name` | text | required |
-| `slug` | text | required, unique — `health` / `food` / `behavior` / `daily-care` |
-| `animal` | select | `"dog"` \| `"cat"` \| `"both"` |
-| `intro` | textarea | |
-| `heroImage` | upload → media | |
-| `heroImageUrl` | text | external URL fallback |
-| `seo.metaTitle` | text | |
-| `seo.metaDescription` | textarea | |
+Edit collections and globals in `packages/shared`, not inside either app.
 
-### Authors (`packages/shared/src/collections/Authors.ts`)
+## Content Workflow
 
-| Field | Type | Notes |
-|---|---|---|
-| `name` | text | required |
-| `role` | select | `veterinarian` \| `editor` \| `contributor` |
-| `credentials` | text | เช่น DVM, M.Sc. |
-| `bio` | textarea | |
-| `avatar` | upload → media | |
-
-### Settings (global, `packages/shared/src/globals/Settings.ts`)
-
-| Field | Type | Notes |
-|---|---|---|
-| `siteName` | text | default "Petster" |
-| `tagline` | text | |
-| `healthDisclaimer` | textarea | shown on `/principles` and (planned) article footers |
-| `socialLinks` | array | `{ platform, url }` |
-
-## Creating Content via Local API (for seed scripts)
-
-Use Payload's Local API to create content programmatically — no HTTP needed.
-
-```typescript
-// scripts/seed-article.ts
-import { getPayload } from 'payload'
-import config from '@payload-config'
-
-const payload = await getPayload({ config })
-
-// 1. หา category id ก่อน
-const cats = await payload.find({ collection: 'categories', where: { slug: { equals: 'health' } } })
-const categoryId = cats.docs[0].id
-
-// 2. สร้างบทความ
-await payload.create({
-  collection: 'articles',
-  data: {
-    title: 'สุนัขอาเจียน เมื่อไรควรพาไปหาหมอ',
-    slug: 'dog-vomiting-when-to-see-vet',
-    animal: 'dog',
-    category: categoryId,
-    excerpt: 'อาเจียนครั้งเดียวอาจไม่อันตราย แต่มีสัญญาณบางอย่างที่บอกว่าต้องพบสัตวแพทย์โดยเร็ว',
-    body: { root: { children: [] } }, // Lexical JSON
-    sources: [{ label: 'VCA Hospitals', url: 'https://vcahospitals.com/...' }],
-    faq: [{ question: 'สุนัขอาเจียนกี่ครั้งถึงควรพาไปหาหมอ', answer: '...' }],
-    featured: false,
-  },
-})
+```txt
+Google Sheet -> Automation/MCP -> Payload draft -> Human review -> Publish -> Web
 ```
 
-รัน script ด้วย:
-```bash
-cd apps/cms
-npx tsx --env-file=.env scripts/seed-article.ts
-```
+Rules:
 
-Phase 1 article rules:
-
-- no visible public author needed yet
-- show last updated date
-- show references
-- show medical / veterinary disclaimer where relevant
+- AI and automation create drafts only.
+- Publishing is manual through Payload.
+- Google Sheet is for planning and bulk feed operations.
+- Payload is the source of truth for published content.
+- Bulk import must validate rows before creating drafts.
+- Duplicate checks use slug first.
+- Import results should write `payload_id`, `preview_url`, `status`, and
+  `error_message` back to the sheet.
 
 ## Editorial Trust Rules
 
-This website is knowledge-first. Never present medical-style claims casually.
+- Use clear Thai.
+- Add references for important health claims.
+- Health content must include a veterinary disclaimer.
+- Do not present medical claims casually.
+- NotebookLM is for reference storage and research notes, not production
+  content.
+- Payload is the production content source of truth.
 
-Required:
+## Design Direction
 
-- each important article should have references
-- content should be written in clear Thai
-- health content should include a disclaimer that it does not replace veterinary diagnosis
-- copy should be practical, calm, and readable
+Petster should feel:
 
-## Design System Notes
+- warm
+- trustworthy
+- contemporary
+- editorial, not corporate
 
-Even when using `shadcn/ui`, do not ship default-looking shadcn pages.
+Avoid:
 
-Requirements:
+- cold hospital design
+- childish pet-shop design
+- generic SaaS dashboard aesthetics
+- overly empty landing-page layouts
+- cluttered portal layouts
 
-- custom brand direction
-- strong typography choices
-- warm but modern palette
-- clear hierarchy
-- mobile-first responsiveness
-- scan-friendly article cards and section layouts
-
-Suggested visual direction:
-
-- soft editorial
-- light background
-- calm teal / green-blue primary family
-- restrained warm accent
+The web UI should be mobile-first, scan-friendly, and information-rich without
+looking noisy.
 
 ## Implementation Status
 
 Done:
-1. ✅ Project scaffold (Next.js 16 + Payload 3 + Tailwind 4 + shadcn)
-2. ✅ Design foundation (tokens, fonts, route groups, chrome components)
-3. ✅ Payload schema (5 collections + 1 global)
-4. ✅ Homepage (CMS-connected: featured + categories + dog/cat sections)
-5. ✅ Category hubs (`/[animal]/[category]`)
-6. ✅ Article template (`/[animal]/[category]/[slug]` + related)
-7. ✅ Animal hubs (`/dogs`, `/cats`)
-8. ✅ Principles page + sitemap + robots
-9. ✅ Seed: 4 categories + 10 articles
 
-Pending (next):
-- Render Lexical richText body on article pages (currently bodies stored as plain strings in seed)
+1. Project scaffold
+2. Split web and CMS apps
+3. Shared Payload schema package
+4. Homepage
+5. Animal hubs
+6. Category hubs
+7. Article template
+8. Principles page
+9. Sitemap and robots
+10. Seed content
+11. Self-hosted Prompt and Sarabun fonts
+
+Next:
+
+- Render Lexical rich text body more completely on article pages
 - Author display on articles
-- JSON-LD (Article + FAQPage + Breadcrumb schema)
+- JSON-LD for Article, FAQPage, Breadcrumb
 - Search experience
-- Migrate Unsplash `heroImageUrl` placeholders to Media uploads (Vercel Blob)
+- Migrate external `heroImageUrl` placeholders to media uploads
 
 ## Agent Working Rules
 
 - Keep the project root clean.
-- Remove temporary inspection folders before finishing.
-- Do not add throwaway files unless necessary.
+- Do not commit local tool folders, local settings, or throwaway inspection
+  files.
 - Prefer production-ready code over mockups.
-- Preserve a clear separation between:
-  - NotebookLM as reference storage
-  - Payload as source of truth for published content
-
-## NotebookLM Role
-
-NotebookLM is for research and references, not for serving production content.
-
-Use it for:
-
-- storing source material
-- summarizing trustworthy references
-- helping draft research notes
-
-Do not treat NotebookLM output as publish-ready without human review.
+- Design experiments belong in `design-lab` and should be static HTML/CSS only.
+- Before commit/deploy, run lint, TypeScript, and build for the affected apps.

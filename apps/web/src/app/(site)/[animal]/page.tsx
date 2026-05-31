@@ -1,8 +1,17 @@
+import Image from "next/image";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { cmsFind } from "@/lib/cms";
 import { getAnimalStaticParams } from "@/lib/cms-paths";
-import { slugToAnimal, animalLabel, animalToSlug, categoryUrl, articleUrl } from "@/lib/url";
+import {
+  categoryNameFrom,
+  categorySlugFrom,
+  imageFrom,
+  type ArticleDoc,
+  type CategoryDoc,
+} from "@/lib/content-types";
+import { slugToAnimal, animalLabel, categoryUrl, articleUrl } from "@/lib/url";
 
 type Params = Promise<{ animal: string }>;
 
@@ -13,12 +22,12 @@ async function getAnimalData(animalSlug: string) {
   if (!animal) return null;
 
   const [categories, latest] = await Promise.all([
-    cmsFind<any>("categories", {
+    cmsFind<CategoryDoc>("categories", {
       where: { or: [{ animal: { equals: animal } }, { animal: { equals: "both" } }] },
       sort: "name",
       limit: 12,
     }),
-    cmsFind<any>("articles", {
+    cmsFind<ArticleDoc>("articles", {
       where: { animal: { equals: animal } },
       sort: "-publishedAt",
       depth: 1,
@@ -60,23 +69,22 @@ export default async function AnimalHubPage({ params }: { params: Params }) {
 
         <div className="topic-grid">
           {categories.map((c) => {
-            const upload = c.heroImage as { url?: string; alt?: string } | null;
-            const heroUrl =
-              (upload && typeof upload === "object" && upload.url) ||
-              (c.heroImageUrl as string | undefined);
-            const heroAlt =
-              (upload && typeof upload === "object" && upload.alt) || c.name;
+            const hero = imageFrom(c);
             return (
-              <a key={c.id} className="topic-card" href={categoryUrl(animal, c.slug)}>
-                {heroUrl && (
+              <Link key={c.id} className="topic-card" href={categoryUrl(animal, c.slug)}>
+                {hero && (
                   <figure className="topic-card-image">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={heroUrl} alt={heroAlt || ""} />
+                    <Image
+                      src={hero.url}
+                      alt={hero.alt || c.name}
+                      fill
+                      sizes="(min-width: 900px) 25vw, (min-width: 640px) 50vw, 100vw"
+                    />
                   </figure>
                 )}
                 <h3>{c.name}</h3>
                 {c.intro && <p>{c.intro}</p>}
-              </a>
+              </Link>
             );
           })}
         </div>
@@ -91,30 +99,28 @@ export default async function AnimalHubPage({ params }: { params: Params }) {
 
           <div className="channel-grid">
             {articles.map((a) => {
-              const upload = a.heroImage as { url?: string; alt?: string } | null;
-              const heroUrl =
-                (upload && typeof upload === "object" && upload.url) ||
-                (a.heroImageUrl as string | undefined);
-              const heroAlt =
-                (upload && typeof upload === "object" && upload.alt) || a.title;
-              const cat = a.category as { name: string; slug: string } | string;
-              const catSlug = typeof cat === "string" ? cat : cat.slug;
-              const catName = typeof cat === "string" ? "" : cat.name;
+              const hero = imageFrom(a);
+              const catSlug = categorySlugFrom(a.category);
+              const catName = categoryNameFrom(a.category);
               return (
-                <a
+                <Link
                   key={a.id}
                   className="channel-card"
                   href={articleUrl(animal, catSlug, a.slug)}
                 >
-                  {heroUrl && (
+                  {hero && (
                     <figure className="channel-card-image">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={heroUrl} alt={heroAlt || ""} />
+                      <Image
+                        src={hero.url}
+                        alt={hero.alt || a.title}
+                        fill
+                        sizes="(min-width: 900px) 33vw, (min-width: 640px) 50vw, 100vw"
+                      />
                     </figure>
                   )}
                   <h3>{a.title}</h3>
                   {catName && <p>{catName}</p>}
-                </a>
+                </Link>
               );
             })}
           </div>

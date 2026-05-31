@@ -1,31 +1,47 @@
 # Petster Web
 
-Current runtime for Petster.
+Public frontend for Petster.
 
-This app contains:
+This app contains only the read-only website:
 
-- Next.js public website
-- Payload CMS admin at `/admin`
-- Payload API routes at `/api`
-- Seed scripts for local content
+- Homepage, animal hubs, category hubs, article pages, principles page
+- SEO routes: `/sitemap.xml` and `/robots.txt`
+- Local Prompt + Sarabun font files in `public/fonts`
+- CMS reads through `CMS_URL` and Payload REST API
+
+It does not contain Payload admin or Payload API routes. Those live in
+`apps/cms`.
 
 ## Run Locally
 
+Run from the repo root:
+
 ```bash
-cd apps/web
 npm install
-cp ../../.env.example .env
-npm run dev
+$env:CMS_URL="http://localhost:3000"
+$env:PORT="3001"
+npm run dev:web
 ```
 
 Open:
 
-- Site: `http://localhost:3000`
-- Admin: `http://localhost:3000/admin`
+- Site: `http://localhost:3001`
 
-## Seed Content
+## Build
 
 ```bash
-cd apps/web
-npm run seed
+npm run lint --workspace petster-web
+npm exec --workspace petster-web tsc -- --noEmit
+npm run build:web
 ```
+
+## Deploy
+
+Deploy as a separate Vercel project from the same Git repo.
+
+Recommended project settings:
+
+- Build command: `npm run build:web`
+- Output directory: `apps/web/.next`
+- Install command: `npm install`
+- Required env: `CMS_URL`, `NEXT_PUBLIC_SITE_URL`

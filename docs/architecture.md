@@ -1,56 +1,75 @@
 # Petster Architecture
 
-Petster is an npm-workspaces monorepo. As of Phase 2 the public site and the
-Payload CMS are **separate apps** that share one schema and one database.
+Petster is an npm-workspaces monorepo. The public website and Payload CMS are
+separate apps that share one repository and one Payload schema.
 
 ```txt
 apps/
-  web/          Next.js public site. Reads content via the Payload Local API.
-                Deploys to Vercel. No /admin or /api routes.
-  cms/          Payload admin (/admin) + REST/GraphQL (/api) — the editing
-                backend. Deploys to a Node host (e.g. Railway).
+  web/          Next.js public site. Reads content from CMS_URL through
+                Payload REST API. No /admin or /api routes.
+  cms/          Payload admin (/admin) + REST/GraphQL (/api). Owns writes,
+                seed scripts, database connection, and media uploads.
   automation/   Google Sheet, MCP, and AI draft workflows (future).
 
 packages/
-  shared/       @petster/shared — the single source of truth for the Payload
+  shared/       @petster/shared. The single source of truth for the Payload
                 schema: payload.config.ts, collections, globals, payload-types.
-                Both apps import it; the config is reached via "@payload-config".
   seo/          Shared SEO helpers (stub).
   prompts/      Shared AI writing and workflow rules (stub).
+
+design-lab/     Static HTML/CSS design experiments only.
 ```
 
-## How the split works
+## Separation
 
-- The Payload schema lives **once** in `packages/shared`. Each app keeps a
-  one-line `src/payload.config.ts` that re-exports `@petster/shared/config`, so
-  the existing `@payload-config` alias keeps resolving. Next bundles the package
-  via `transpilePackages: ["@petster/shared"]`.
-- Both apps still use the **Payload Local API** (`getPayload`), so no page was
-  rewritten to fetch over HTTP. `apps/web` reads; `apps/cms` reads + writes.
-- Both apps connect to the **same database** (Neon Postgres in production). In
-  dev with SQLite, point both `DATABASE_URI`s at one shared file
-  (e.g. `apps/web/.env` → `file:../cms/petster.db`).
+- `apps/cms` owns Payload admin, API routes, Local API writes, seeding, DB
+  adapter selection, and media storage.
+- `apps/web` owns only the public SEO website. It fetches content through
+  `CMS_URL` using Payload REST endpoints.
+- `packages/shared` owns the schema. Edit collections and globals there, not
+  inside either app.
+- Google Sheet and MCP automation are planned for `apps/automation`; automation
+  must create drafts only.
 
-## Database & seeding
+## Database
 
-- `apps/cms` owns seeding and schema push. `apps/cms/scripts/build.ts` seeds
-  Postgres on deploy, then runs `next build`. Run seeding from the CMS host.
-- `apps/web` only reads, so its build is a plain `next build`.
+- Local dev can use SQLite through `DATABASE_URI=file:./petster.db`.
+- Production should use Postgres through `DATABASE_URI=postgresql://...`.
+- Payload is the layer that reads/writes the database. The public web app reads
+  Payload, not the database directly.
+
+## Fonts
+
+The web app self-hosts Prompt and Sarabun in `apps/web/public/fonts` and declares
+them in `apps/web/src/app/(site)/petster.css`. Do not reintroduce
+`next/font/google` unless the deployment environment can reach Google Fonts at
+build time.
 
 ## Workspaces
 
-Root `package.json` declares
-`workspaces: ["apps/cms", "apps/web", "packages/shared"]`.
-Always run `npm install` at the repo root (this links `@petster/shared` into
-both apps). Add any new package to that list — stub dirs without a
-`package.json` (`packages/seo`, `packages/prompts`, `apps/automation`) are
-intentionally left out until they have one.
+Root `package.json` declares:
+
+```json
+{
+  "workspaces": ["apps/cms", "apps/web", "packages/shared"]
+}
+```
+
+Always run `npm install` at the repo root so workspace links and the lockfile
+stay consistent.
 
 ## Deploy
 
-- **web → Vercel.** Root `vercel.json` installs at the repo root and runs
-  `npm run build --workspace petster-web`; output is `apps/web/.next`.
-- **cms → Node host (Railway/Render).** Build with `npm run build --workspace
-  petster-cms`; start with `npm run start --workspace petster-cms`.
-- Both read `DATABASE_URI` (Neon Postgres) + `PAYLOAD_SECRET`. Set
-  `BLOB_READ_WRITE_TOKEN` on `cms` for Vercel Blob media uploads.
+Use one Git repo with two Vercel projects:
+
+| Vercel project | App | Build command | Output directory |
+|---|---|---|---|
+| `cms` | `apps/cms` | `npm run build:cms` | `apps/cms/.next` |
+| `web` | `apps/web` | `npm run build:web` | `apps/web/.next` |
+
+Both projects should install from the repo root with `npm install`.
+
+Required production env:
+
+- CMS: `DATABASE_URI`, `PAYLOAD_SECRET`, optional `BLOB_READ_WRITE_TOKEN`
+- Web: `CMS_URL`, `NEXT_PUBLIC_SITE_URL`

@@ -1,21 +1,10 @@
 import type { Metadata } from "next";
-import { Prompt, Sarabun } from "next/font/google";
 import "../globals.css";
 import "./petster.css";
-import { SiteHeader, SiteFooter, BottomNav } from "@/components/site-chrome";
+import { BottomNav } from "@/components/bottom-nav";
 import { RevealOnScroll } from "@/components/reveal-on-scroll";
-
-const prompt = Prompt({
-  subsets: ["thai", "latin"],
-  weight: ["500", "600", "700"],
-  variable: "--font-prompt",
-});
-
-const sarabun = Sarabun({
-  subsets: ["thai", "latin"],
-  weight: ["400", "500", "600", "700"],
-  variable: "--font-sarabun",
-});
+import { SiteFooter } from "@/components/site-footer";
+import { SiteHeader } from "@/components/site-header";
 
 export const metadata: Metadata = {
   title: { default: "Petster | ความรู้หมาแมวที่น่าเชื่อถือ", template: "%s | Petster" },
@@ -28,7 +17,7 @@ export const metadata: Metadata = {
 
 export default function SiteLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="th" className={`${prompt.variable} ${sarabun.variable}`}>
+    <html lang="th">
       <body>
         <div className="page-noise" aria-hidden="true" />
         <SiteHeader />

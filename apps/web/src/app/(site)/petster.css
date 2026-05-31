@@ -1,3 +1,143 @@
+@font-face {
+  font-family: "Prompt";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/fonts/prompt-thai-500.woff2") format("woff2");
+  unicode-range: U+02D7, U+0303, U+0331, U+0E01-0E5B, U+200C-200D, U+25CC;
+}
+
+@font-face {
+  font-family: "Prompt";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/fonts/prompt-latin-500.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191,
+    U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "Prompt";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("/fonts/prompt-thai-600.woff2") format("woff2");
+  unicode-range: U+02D7, U+0303, U+0331, U+0E01-0E5B, U+200C-200D, U+25CC;
+}
+
+@font-face {
+  font-family: "Prompt";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("/fonts/prompt-latin-600.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191,
+    U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "Prompt";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/fonts/prompt-thai-700.woff2") format("woff2");
+  unicode-range: U+02D7, U+0303, U+0331, U+0E01-0E5B, U+200C-200D, U+25CC;
+}
+
+@font-face {
+  font-family: "Prompt";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/fonts/prompt-latin-700.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191,
+    U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "Sarabun";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/sarabun-thai-400.woff2") format("woff2");
+  unicode-range: U+02D7, U+0303, U+0331, U+0E01-0E5B, U+200C-200D, U+25CC;
+}
+
+@font-face {
+  font-family: "Sarabun";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/sarabun-latin-400.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191,
+    U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "Sarabun";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/fonts/sarabun-thai-500.woff2") format("woff2");
+  unicode-range: U+02D7, U+0303, U+0331, U+0E01-0E5B, U+200C-200D, U+25CC;
+}
+
+@font-face {
+  font-family: "Sarabun";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/fonts/sarabun-latin-500.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191,
+    U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "Sarabun";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("/fonts/sarabun-thai-600.woff2") format("woff2");
+  unicode-range: U+02D7, U+0303, U+0331, U+0E01-0E5B, U+200C-200D, U+25CC;
+}
+
+@font-face {
+  font-family: "Sarabun";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("/fonts/sarabun-latin-600.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191,
+    U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "Sarabun";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/fonts/sarabun-thai-700.woff2") format("woff2");
+  unicode-range: U+02D7, U+0303, U+0331, U+0E01-0E5B, U+200C-200D, U+25CC;
+}
+
+@font-face {
+  font-family: "Sarabun";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/fonts/sarabun-latin-700.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191,
+    U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
 :root {
   --bg: #eef4f3;
   --surface: #ffffff;
@@ -14,6 +154,8 @@
   --radius-md: 12px;
   --radius-lg: 16px;
   --shell: 1180px;
+  --font-prompt: "Prompt";
+  --font-sarabun: "Sarabun";
 }
 
 *,
@@ -31,7 +173,7 @@ body {
   margin: 0;
   min-width: 320px;
   padding-bottom: 6.4rem;
-  font-family: var(--font-sarabun), "Sarabun", sans-serif;
+  font-family: var(--font-sarabun, "Leelawadee UI", "Noto Sans Thai", "Segoe UI", Tahoma, sans-serif);
   color: var(--ink);
   background: linear-gradient(180deg, #f8fbfb 0%, var(--bg) 100%);
   line-height: 1.66;
@@ -119,7 +261,7 @@ p,
   border-radius: var(--radius-sm);
   background: linear-gradient(135deg, var(--primary), #27a5a2);
   color: #fff;
-  font-family: var(--font-prompt), "Prompt", sans-serif;
+  font-family: var(--font-prompt, "Leelawadee UI", "Noto Sans Thai", "Segoe UI", Arial, sans-serif);
   font-size: 0.95rem;
   box-shadow: 0 6px 12px rgba(27, 138, 134, 0.18);
 }
@@ -129,7 +271,7 @@ p,
 h1,
 h2,
 h3 {
-  font-family: var(--font-prompt), "Prompt", sans-serif;
+  font-family: var(--font-prompt, "Leelawadee UI", "Noto Sans Thai", "Segoe UI", Arial, sans-serif);
 }
 
 .brand-text {
@@ -324,6 +466,7 @@ h3 {
 .mini-article-image,
 .topic-card-image,
 .channel-card-image {
+  position: relative;
   overflow: hidden;
 }
 
@@ -797,6 +940,7 @@ h3 {
 }
 
 .article-hero {
+  position: relative;
   aspect-ratio: 16 / 9;
   border-radius: var(--radius-md);
   overflow: hidden;
@@ -819,7 +963,7 @@ h3 {
   margin: 0;
   padding: 0.9rem 1rem;
   background: rgba(230, 139, 116, 0.08);
-  border-left: 3px solid var(--accent);
+  border: 1px solid rgba(230, 139, 116, 0.24);
   border-radius: var(--radius-sm);
   font-size: 0.92rem;
   color: var(--ink);
@@ -840,17 +984,17 @@ h3 {
 
 .block-callout-tip {
   background: rgba(27, 138, 134, 0.08);
-  border-left: 3px solid var(--primary);
+  border: 1px solid rgba(27, 138, 134, 0.18);
 }
 
 .block-callout-warning {
   background: rgba(230, 139, 116, 0.1);
-  border-left: 3px solid var(--accent);
+  border: 1px solid rgba(230, 139, 116, 0.22);
 }
 
 .block-callout-info {
   background: rgba(23, 48, 56, 0.06);
-  border-left: 3px solid var(--muted);
+  border: 1px solid rgba(23, 48, 56, 0.12);
 }
 
 .block-callout-label {
@@ -877,6 +1021,7 @@ h3 {
 }
 
 .block-image figure {
+  position: relative;
   aspect-ratio: 16 / 9;
   border-radius: var(--radius-md);
   overflow: hidden;
@@ -933,7 +1078,7 @@ h3 {
 .faq-item dt {
   font-weight: 700;
   margin-bottom: 0.35rem;
-  font-family: var(--font-prompt), "Prompt", sans-serif;
+  font-family: var(--font-prompt, "Leelawadee UI", "Noto Sans Thai", "Segoe UI", Arial, sans-serif);
 }
 
 .faq-item dd {

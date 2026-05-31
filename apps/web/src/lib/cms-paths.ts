@@ -1,4 +1,5 @@
 import { cmsFind } from "@/lib/cms";
+import type { ArticleDoc, CategoryDoc } from "@/lib/content-types";
 import { animalToSlug, slugToAnimal, type AnimalSlug } from "@/lib/url";
 
 export async function getAnimalStaticParams() {
@@ -6,7 +7,7 @@ export async function getAnimalStaticParams() {
 }
 
 export async function getCategoryStaticParams() {
-  const categories = await cmsFind<any>("categories", { limit: 100 });
+  const categories = await cmsFind<CategoryDoc>("categories", { limit: 100 });
 
   const params: { animal: AnimalSlug; category: string }[] = [];
   for (const animalSlug of ["dogs", "cats"] as const) {
@@ -24,23 +25,22 @@ export async function getCategoryStaticParams() {
 }
 
 export async function getArticleStaticParams() {
-  const articles = await cmsFind<any>("articles", { depth: 1, limit: 500 });
+  const articles = await cmsFind<ArticleDoc>("articles", { depth: 1, limit: 500 });
 
-  return articles.docs
-    .map((article: any) => {
+  const params: { animal: AnimalSlug; category: string; slug: string }[] = [];
+  for (const article of articles.docs) {
       const category =
         typeof article.category === "object" && article.category
           ? article.category.slug
           : null;
-      if (!category) return null;
+      if (!category) continue;
 
-      return {
+      params.push({
         animal: animalToSlug(article.animal),
         category,
         slug: article.slug,
-      };
-    })
-    .filter((entry: any): entry is { animal: AnimalSlug; category: string; slug: string } =>
-      Boolean(entry),
-    );
+      });
+  }
+
+  return params;
 }

@@ -1,4 +1,14 @@
+import Image from "next/image";
+import Link from "next/link";
+import type { Metadata } from "next";
 import { cmsFind } from "@/lib/cms";
+import {
+  categoryNameFrom,
+  categorySlugFrom,
+  imageFrom,
+  type ArticleDoc,
+  type CategoryDoc,
+} from "@/lib/content-types";
 import { articleUrl, categoryUrl, type Animal } from "@/lib/url";
 
 const FALLBACK_IMAGES = {
@@ -11,32 +21,28 @@ const FALLBACK_IMAGES = {
   cat: "https://images.unsplash.com/photo-1511044568932-338cba0ad803?auto=format&fit=crop&w=900&q=80",
 } as const;
 
-function imgFrom(doc: Record<string, unknown>, fallback: string) {
-  const upload = doc.heroImage as { url?: string; alt?: string } | null;
-  if (upload && typeof upload === "object" && upload.url) {
-    return { url: upload.url, alt: upload.alt || "" };
-  }
-  const url = doc.heroImageUrl as string | undefined;
-  if (url) return { url, alt: "" };
-  return { url: fallback, alt: "" };
-}
+export const metadata: Metadata = {
+  title: "Petster | ความรู้หมาแมวที่น่าเชื่อถือ",
+  description:
+    "Petster รวมบทความหมาแมวที่อ่านง่าย มีโครงสร้างชัด และเน้นข้อมูลที่ใช้ได้จริงสำหรับเจ้าของสัตว์เลี้ยง",
+};
 
 async function getHomepageData() {
   const [featured, categories, dogArticles, catArticles] = await Promise.all([
-    cmsFind<any>("articles", {
+    cmsFind<ArticleDoc>("articles", {
       where: { featured: { equals: true } },
       sort: "-publishedAt",
       depth: 2,
       limit: 1,
     }),
-    cmsFind<any>("categories", { sort: "name", limit: 4 }),
-    cmsFind<any>("articles", {
+    cmsFind<CategoryDoc>("categories", { sort: "name", limit: 4 }),
+    cmsFind<ArticleDoc>("articles", {
       where: { animal: { equals: "dog" } },
       sort: "-publishedAt",
       depth: 1,
       limit: 3,
     }),
-    cmsFind<any>("articles", {
+    cmsFind<ArticleDoc>("articles", {
       where: { animal: { equals: "cat" } },
       sort: "-publishedAt",
       depth: 1,
@@ -55,11 +61,8 @@ async function getHomepageData() {
 export default async function HomePage() {
   const { featured, categories, dogArticles, catArticles } = await getHomepageData();
 
-  const featuredImg = featured ? imgFrom(featured as any, FALLBACK_IMAGES.hero) : null;
-  const featuredCat =
-    featured && typeof featured.category === "object"
-      ? (featured.category as { slug: string }).slug
-      : "";
+  const featuredImg = featured ? imageFrom(featured, FALLBACK_IMAGES.hero) : null;
+  const featuredCat = featured ? categorySlugFrom(featured.category) : "";
   const featuredHref = featured
     ? articleUrl(featured.animal as Animal, featuredCat, featured.slug)
     : "/dogs";
@@ -93,28 +96,32 @@ export default async function HomePage() {
         </form>
 
         <div className="search-tags reveal" aria-label="Popular searches">
-          <a href="/dogs/health">หมาอาเจียน</a>
-          <a href="/dogs/food">อาหารสุนัข</a>
-          <a href="/cats/health">แมวไม่กินอาหาร</a>
-          <a href="/dogs/behavior">พฤติกรรม</a>
-          <a href="/dogs/health">ฉีดวัคซีน</a>
-          <a href="/cats/health">แมวอ้วก</a>
-          <a href="/dogs/daily-care">อาบน้ำหมา</a>
-          <a href="/cats/daily-care">กระบะทรายแมว</a>
+          <Link href="/dogs/health">หมาอาเจียน</Link>
+          <Link href="/dogs/food">อาหารสุนัข</Link>
+          <Link href="/cats/health">แมวไม่กินอาหาร</Link>
+          <Link href="/dogs/behavior">พฤติกรรม</Link>
+          <Link href="/dogs/health">ฉีดวัคซีน</Link>
+          <Link href="/cats/health">แมวอ้วก</Link>
+          <Link href="/dogs/daily-care">อาบน้ำหมา</Link>
+          <Link href="/cats/daily-care">กระบะทรายแมว</Link>
         </div>
 
         {featured && featuredImg && (
-          <a className="hero-feature reveal" href={featuredHref}>
+          <Link className="hero-feature reveal" href={featuredHref}>
             <figure className="hero-photo">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={featuredImg.url} alt={featuredImg.alt || featured.title} />
+              <Image
+                src={featuredImg.url}
+                alt={featuredImg.alt || featured.title}
+                fill
+                sizes="(min-width: 900px) 45vw, 100vw"
+              />
             </figure>
             <div className="hero-feature-copy">
               <p className="signal-label">อ่านต่อก่อน</p>
               <h2>{featured.title}</h2>
               <span className="inline-link">อ่านแนวทาง</span>
             </div>
-          </a>
+          </Link>
         )}
       </section>
 
@@ -128,16 +135,20 @@ export default async function HomePage() {
           {categories.map((c) => {
             const fallback =
               (FALLBACK_IMAGES as Record<string, string>)[c.slug] || FALLBACK_IMAGES.hero;
-            const img = imgFrom(c as any, fallback);
+            const img = imageFrom(c, fallback);
             return (
-              <a key={c.id} className="topic-card reveal" href={categoryUrl("dogs", c.slug)}>
+              <Link key={c.id} className="topic-card reveal" href={categoryUrl("dogs", c.slug)}>
                 <figure className="topic-card-image">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={img.url} alt={img.alt || c.name} />
+                  <Image
+                    src={img.url}
+                    alt={img.alt || c.name}
+                    fill
+                    sizes="(min-width: 900px) 25vw, (min-width: 640px) 50vw, 100vw"
+                  />
                 </figure>
                 <h3>{c.name}</h3>
                 {c.intro && <p>{c.intro}</p>}
-              </a>
+              </Link>
             );
           })}
         </div>
@@ -151,23 +162,26 @@ export default async function HomePage() {
 
         <div className="channel-grid">
           {dogArticles.map((a) => {
-            const cat = a.category as { slug: string; name: string } | string;
-            const catSlug = typeof cat === "string" ? "" : cat.slug;
-            const catName = typeof cat === "string" ? "" : cat.name;
-            const img = imgFrom(a as any, FALLBACK_IMAGES.dog);
+            const catSlug = categorySlugFrom(a.category);
+            const catName = categoryNameFrom(a.category);
+            const img = imageFrom(a, FALLBACK_IMAGES.dog);
             return (
-              <a
+              <Link
                 key={a.id}
                 className="channel-card reveal"
                 href={articleUrl("dog", catSlug, a.slug)}
               >
                 <figure className="channel-card-image">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={img.url} alt={img.alt || a.title} />
+                  <Image
+                    src={img.url}
+                    alt={img.alt || a.title}
+                    fill
+                    sizes="(min-width: 900px) 33vw, (min-width: 640px) 50vw, 100vw"
+                  />
                 </figure>
                 <h3>{a.title}</h3>
                 {catName && <p>{catName}</p>}
-              </a>
+              </Link>
             );
           })}
         </div>
@@ -181,23 +195,26 @@ export default async function HomePage() {
 
         <div className="channel-grid">
           {catArticles.map((a) => {
-            const cat = a.category as { slug: string; name: string } | string;
-            const catSlug = typeof cat === "string" ? "" : cat.slug;
-            const catName = typeof cat === "string" ? "" : cat.name;
-            const img = imgFrom(a as any, FALLBACK_IMAGES.cat);
+            const catSlug = categorySlugFrom(a.category);
+            const catName = categoryNameFrom(a.category);
+            const img = imageFrom(a, FALLBACK_IMAGES.cat);
             return (
-              <a
+              <Link
                 key={a.id}
                 className="channel-card reveal"
                 href={articleUrl("cat", catSlug, a.slug)}
               >
                 <figure className="channel-card-image">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={img.url} alt={img.alt || a.title} />
+                  <Image
+                    src={img.url}
+                    alt={img.alt || a.title}
+                    fill
+                    sizes="(min-width: 900px) 33vw, (min-width: 640px) 50vw, 100vw"
+                  />
                 </figure>
                 <h3>{a.title}</h3>
                 {catName && <p>{catName}</p>}
-              </a>
+              </Link>
             );
           })}
         </div>

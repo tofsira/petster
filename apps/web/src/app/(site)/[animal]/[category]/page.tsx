@@ -1,7 +1,10 @@
+import Image from "next/image";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { cmsFind } from "@/lib/cms";
 import { getCategoryStaticParams } from "@/lib/cms-paths";
+import { imageFrom, type ArticleDoc, type CategoryDoc } from "@/lib/content-types";
 import { slugToAnimal, animalLabel, articleUrl, animalToSlug } from "@/lib/url";
 
 type Params = Promise<{ animal: string; category: string }>;
@@ -12,7 +15,7 @@ async function getCategoryData(animalSlug: string, categorySlug: string) {
   const animal = slugToAnimal(animalSlug);
   if (!animal) return null;
 
-  const catRes = await cmsFind<any>("categories", {
+  const catRes = await cmsFind<CategoryDoc>("categories", {
     where: {
       and: [
         { slug: { equals: categorySlug } },
@@ -24,7 +27,7 @@ async function getCategoryData(animalSlug: string, categorySlug: string) {
   const category = catRes.docs[0];
   if (!category) return null;
 
-  const articles = await cmsFind<any>("articles", {
+  const articles = await cmsFind<ArticleDoc>("articles", {
     where: {
       and: [
         { animal: { equals: animal } },
@@ -64,7 +67,7 @@ export default async function CategoryHubPage({ params }: { params: Params }) {
   return (
     <main className="shell section">
       <nav className="breadcrumb" aria-label="Breadcrumb">
-        <a href={`/${animalToSlug(animal)}`}>{animalLabel(animal)}</a>
+        <Link href={`/${animalToSlug(animal)}`}>{animalLabel(animal)}</Link>
       </nav>
 
       <header className="section-heading">
@@ -78,28 +81,27 @@ export default async function CategoryHubPage({ params }: { params: Params }) {
       ) : (
         <div className="topic-grid">
           {articles.map((article) => {
-            const upload = article.heroImage as { url?: string; alt?: string } | null;
-            const heroUrl =
-              (upload && typeof upload === "object" && upload.url) ||
-              (article.heroImageUrl as string | undefined);
-            const heroAlt =
-              (upload && typeof upload === "object" && upload.alt) || article.title;
+            const hero = imageFrom(article);
 
             return (
-              <a
+              <Link
                 key={article.id}
                 className="topic-card"
                 href={articleUrl(animal, categorySlug, article.slug)}
               >
-                {heroUrl && (
+                {hero && (
                   <figure className="topic-card-image">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={heroUrl} alt={heroAlt || ""} />
+                    <Image
+                      src={hero.url}
+                      alt={hero.alt || article.title}
+                      fill
+                      sizes="(min-width: 900px) 25vw, (min-width: 640px) 50vw, 100vw"
+                    />
                   </figure>
                 )}
                 <h3>{article.title}</h3>
                 {article.excerpt && <p>{article.excerpt}</p>}
-              </a>
+              </Link>
             );
           })}
         </div>
