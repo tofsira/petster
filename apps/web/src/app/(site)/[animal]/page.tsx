@@ -60,72 +60,68 @@ export default async function AnimalHubPage({ params }: { params: Params }) {
   const { animal, categories, articles } = data;
 
   return (
-    <main>
-      <section className="shell section">
-        <header className="section-heading">
+    <main className="shell animal-page">
+      <header className="animal-head">
+        <div>
           <p className="eyebrow">หมวดความรู้</p>
           <h1>{animalLabel(animal)}</h1>
-        </header>
-
-        <div className="topic-grid">
-          {categories.map((c) => {
-            const hero = imageFrom(c);
-            return (
-              <Link key={c.id} className="topic-card" href={categoryUrl(animal, c.slug)}>
-                {hero && (
-                  <figure className="topic-card-image">
-                    <Image
-                      src={hero.url}
-                      alt={hero.alt || c.name}
-                      fill
-                      sizes="(min-width: 900px) 25vw, (min-width: 640px) 50vw, 100vw"
-                    />
-                  </figure>
-                )}
-                <h3>{c.name}</h3>
-                {c.intro && <p>{c.intro}</p>}
-              </Link>
-            );
-          })}
         </div>
-      </section>
+        <p>
+          รวมบทความสำหรับคนเลี้ยง{animalLabel(animal)} ตั้งแต่สุขภาพ อาหาร พฤติกรรม ไปจนถึงการดูแลประจำวัน
+        </p>
+      </header>
+
+      {categories.length > 0 && (
+        <nav className="animal-tabs" aria-label={`หมวด${animalLabel(animal)}`}>
+          <span>ทั้งหมด</span>
+          {categories.map((c) => (
+            <Link key={c.id} href={categoryUrl(animal, c.slug)}>
+              {c.name}
+            </Link>
+          ))}
+        </nav>
+      )}
 
       {articles.length > 0 && (
-        <section className="shell section">
-          <header className="section-heading">
-            <p className="eyebrow">บทความล่าสุด</p>
-            <h2>เนื้อหาล่าสุดสำหรับคนเลี้ยง{animalLabel(animal)}</h2>
-          </header>
+        <section className="animal-section">
+          <div className="section-heading">
+            <p className="eyebrow">Latest</p>
+            <h2>บทความล่าสุด</h2>
+          </div>
 
-          <div className="channel-grid">
-            {articles.map((a) => {
-              const hero = imageFrom(a);
-              const catSlug = categorySlugFrom(a.category);
-              const catName = categoryNameFrom(a.category);
-              return (
-                <Link
-                  key={a.id}
-                  className="channel-card"
-                  href={articleUrl(animal, catSlug, a.slug)}
-                >
-                  {hero && (
-                    <figure className="channel-card-image">
-                      <Image
-                        src={hero.url}
-                        alt={hero.alt || a.title}
-                        fill
-                        sizes="(min-width: 900px) 33vw, (min-width: 640px) 50vw, 100vw"
-                      />
-                    </figure>
-                  )}
-                  <h3>{a.title}</h3>
-                  {catName && <p>{catName}</p>}
-                </Link>
-              );
-            })}
+          <div className="animal-article-list">
+            {articles.map((article) => (
+              <AnimalArticleLink key={article.id} article={article} animal={animal} />
+            ))}
           </div>
         </section>
       )}
     </main>
+  );
+}
+
+function AnimalArticleLink({ article, animal }: { article: ArticleDoc; animal: "dog" | "cat" }) {
+  const hero = imageFrom(article, undefined, "squareSmall");
+  const catSlug = categorySlugFrom(article.category);
+  const catName = categoryNameFrom(article.category);
+
+  return (
+    <Link className="animal-article-link" href={articleUrl(animal, catSlug, article.slug)}>
+      {hero && (
+        <figure className="animal-article-image">
+          <Image
+            src={hero.url}
+            alt={hero.alt || article.title}
+            fill
+            sizes="(min-width: 760px) 132px, 96px"
+          />
+        </figure>
+      )}
+      <div className="animal-article-copy">
+        {catName && <p>{catName}</p>}
+        <h3>{article.title}</h3>
+        {article.excerpt && <span>{article.excerpt}</span>}
+      </div>
+    </Link>
   );
 }

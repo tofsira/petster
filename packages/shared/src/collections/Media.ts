@@ -6,6 +6,9 @@ export const Media: CollectionConfig = {
   upload: {
     staticDir: "media",
     imageSizes: [
+      { name: "squareSmall", width: 480, height: 480, position: "centre" },
+      { name: "squareCard", width: 900, height: 900, position: "centre" },
+      { name: "squareHero", width: 1200, height: 1200, position: "centre" },
       { name: "thumb", width: 480, height: 320, position: "centre" },
       { name: "card", width: 900, height: 600, position: "centre" },
       { name: "hero", width: 1600, height: 1000, position: "centre" },

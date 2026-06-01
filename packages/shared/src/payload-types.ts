@@ -177,6 +177,30 @@ export interface Media {
   focalX?: number | null;
   focalY?: number | null;
   sizes?: {
+    squareSmall?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    squareCard?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    squareHero?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
     thumb?: {
       url?: string | null;
       width?: number | null;
@@ -262,9 +286,9 @@ export interface Article {
   id: number;
   title: string;
   /**
-   * URL slug — ห้ามมีช่องว่าง
+   * ปล่อยว่างได้ ระบบจะสร้างจาก title และห้ามมีช่องว่าง
    */
-  slug: string;
+  slug?: string | null;
   animal: 'dog' | 'cat';
   publishedAt?: string | null;
   category: number | Category;
@@ -287,11 +311,22 @@ export interface Article {
     };
     [k: string]: unknown;
   } | null;
+  /**
+   * ระบบคำนวณจากเนื้อหาโดยอัตโนมัติ
+   */
+  readingTimeMinutes?: number | null;
   heroImage?: (number | null) | Media;
   /**
    * ใช้ external URL ถ้ายังไม่ได้ upload heroImage
    */
   heroImageUrl?: string | null;
+  contentStage?: ('draft' | 'review' | 'ready' | 'published') | null;
+  referencesChecked?: boolean | null;
+  healthDisclaimerChecked?: boolean | null;
+  vetReviewRequired?: boolean | null;
+  reviewedBy?: (number | null) | User;
+  reviewedAt?: string | null;
+  internalNotes?: string | null;
   sources?:
     | {
         label: string;
@@ -309,12 +344,19 @@ export interface Article {
   author?: (number | null) | Author;
   featured?: boolean | null;
   seo?: {
+    /**
+     * แนะนำไม่เกิน 70 ตัวอักษร ถ้าเว้นว่างจะใช้ title
+     */
     metaTitle?: string | null;
+    /**
+     * แนะนำไม่เกิน 160 ตัวอักษร ถ้าเว้นว่างจะใช้ excerpt
+     */
     metaDescription?: string | null;
     ogImage?: (number | null) | Media;
   };
   updatedAt: string;
   createdAt: string;
+  _status?: ('draft' | 'published') | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -446,6 +488,36 @@ export interface MediaSelect<T extends boolean = true> {
   sizes?:
     | T
     | {
+        squareSmall?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        squareCard?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        squareHero?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
         thumb?:
           | T
           | {
@@ -525,8 +597,16 @@ export interface ArticlesSelect<T extends boolean = true> {
   category?: T;
   excerpt?: T;
   body?: T;
+  readingTimeMinutes?: T;
   heroImage?: T;
   heroImageUrl?: T;
+  contentStage?: T;
+  referencesChecked?: T;
+  healthDisclaimerChecked?: T;
+  vetReviewRequired?: T;
+  reviewedBy?: T;
+  reviewedAt?: T;
+  internalNotes?: T;
   sources?:
     | T
     | {
@@ -552,6 +632,7 @@ export interface ArticlesSelect<T extends boolean = true> {
       };
   updatedAt?: T;
   createdAt?: T;
+  _status?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

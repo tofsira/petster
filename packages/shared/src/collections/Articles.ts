@@ -1,14 +1,96 @@
-import type { CollectionConfig } from "payload";
+import type { Access, CollectionConfig } from "payload";
 import { lexicalEditor, BlocksFeature } from "@payloadcms/richtext-lexical";
 import { calloutBlock } from "../blocks/callout";
+import { comparisonTableBlock } from "../blocks/comparisonTable";
 import { imageBlock } from "../blocks/imageBlock";
+import { keyTakeawaysBlock } from "../blocks/keyTakeaways";
+import { redFlagsBlock } from "../blocks/redFlags";
+import { stepListBlock } from "../blocks/stepList";
+import { whenToSeeVetBlock } from "../blocks/whenToSeeVet";
+import { estimateArticleReadingTime, isValidSlug, slugifyTitle } from "../utils/editorial";
+
+const authenticated: Access = ({ req }) => Boolean(req.user);
+
+const publishedOrAuthenticated: Access = ({ req }) => {
+  if (req.user) return true;
+  return { _status: { equals: "published" } };
+};
+
+const previewBaseUrl = () =>
+  (process.env.NEXT_PUBLIC_SITE_URL || process.env.FRONTEND_URL || "http://localhost:3001").replace(
+    /\/$/,
+    "",
+  );
+
+const animalToSlug = (animal?: unknown) => (animal === "cat" ? "cats" : "dogs");
+
+const categorySlugFromDoc = (category?: unknown) =>
+  typeof category === "object" && category && "slug" in category
+    ? String((category as { slug?: unknown }).slug || "")
+    : "";
 
 export const Articles: CollectionConfig = {
   slug: "articles",
-  access: { read: () => true },
+  access: {
+    create: authenticated,
+    delete: authenticated,
+    read: publishedOrAuthenticated,
+    update: authenticated,
+  },
   admin: {
     useAsTitle: "title",
-    defaultColumns: ["title", "animal", "category", "publishedAt", "featured"],
+    defaultColumns: ["title", "_status", "contentStage", "animal", "category", "readingTimeMinutes"],
+    listSearchableFields: ["title", "slug", "excerpt"],
+    preview: (doc, { token }) => {
+      const categorySlug = categorySlugFromDoc(doc.category);
+      if (!doc.animal || !categorySlug || !doc.slug) return null;
+      const draftToken = token ? `&token=${encodeURIComponent(token)}` : "";
+      return `${previewBaseUrl()}/${animalToSlug(doc.animal)}/${categorySlug}/${doc.slug}?draft=true${draftToken}`;
+    },
+    livePreview: {
+      url: ({ data }) => {
+        const categorySlug = categorySlugFromDoc(data.category);
+        if (!data.animal || !categorySlug || !data.slug) return null;
+        return `${previewBaseUrl()}/${animalToSlug(data.animal)}/${categorySlug}/${data.slug}?preview=true`;
+      },
+    },
+  },
+  versions: {
+    drafts: {
+      autosave: {
+        interval: 15000,
+      },
+    },
+    maxPerDoc: 30,
+  },
+  hooks: {
+    beforeValidate: [
+      ({ data }) => {
+        if (!data) return data;
+
+        const nextData = { ...data };
+        if (!nextData.slug && typeof nextData.title === "string") {
+          nextData.slug = slugifyTitle(nextData.title);
+        } else if (typeof nextData.slug === "string") {
+          nextData.slug = slugifyTitle(nextData.slug);
+        }
+
+        nextData.readingTimeMinutes = estimateArticleReadingTime({
+          body: nextData.body,
+          excerpt: typeof nextData.excerpt === "string" ? nextData.excerpt : null,
+          title: typeof nextData.title === "string" ? nextData.title : null,
+        });
+
+        if (
+          (nextData._status === "published" || nextData.contentStage === "published") &&
+          !nextData.publishedAt
+        ) {
+          nextData.publishedAt = new Date().toISOString();
+        }
+
+        return nextData;
+      },
+    ],
   },
   fields: [
     {
@@ -21,9 +103,11 @@ export const Articles: CollectionConfig = {
             {
               name: "slug",
               type: "text",
-              required: true,
+              required: false,
               unique: true,
-              admin: { description: "URL slug — ห้ามมีช่องว่าง" },
+              validate: (value: unknown) =>
+                !value || isValidSlug(value) || "Slug ใช้ได้เฉพาะตัวอักษร ตัวเลข และขีดกลาง ห้ามเว้นวรรค",
+              admin: { description: "ปล่อยว่างได้ ระบบจะสร้างจาก title และห้ามมีช่องว่าง" },
             },
             {
               type: "row",
@@ -62,9 +146,28 @@ export const Articles: CollectionConfig = {
               editor: lexicalEditor({
                 features: ({ defaultFeatures }) => [
                   ...defaultFeatures,
-                  BlocksFeature({ blocks: [calloutBlock, imageBlock] }),
+                  BlocksFeature({
+                    blocks: [
+                      calloutBlock,
+                      comparisonTableBlock,
+                      imageBlock,
+                      keyTakeawaysBlock,
+                      redFlagsBlock,
+                      stepListBlock,
+                      whenToSeeVetBlock,
+                    ],
+                  }),
                 ],
               }),
+            },
+            {
+              name: "readingTimeMinutes",
+              type: "number",
+              min: 1,
+              admin: {
+                description: "ระบบคำนวณจากเนื้อหาโดยอัตโนมัติ",
+                readOnly: true,
+              },
             },
           ],
         },
@@ -82,6 +185,43 @@ export const Articles: CollectionConfig = {
         {
           label: "เพิ่มเติม",
           fields: [
+            {
+              type: "collapsible",
+              label: "Editorial workflow",
+              fields: [
+                {
+                  name: "contentStage",
+                  type: "select",
+                  defaultValue: "draft",
+                  options: [
+                    { label: "Draft", value: "draft" },
+                    { label: "Review", value: "review" },
+                    { label: "Ready", value: "ready" },
+                    { label: "Published", value: "published" },
+                  ],
+                },
+                {
+                  type: "row",
+                  fields: [
+                    { name: "referencesChecked", type: "checkbox", defaultValue: false },
+                    { name: "healthDisclaimerChecked", type: "checkbox", defaultValue: false },
+                    { name: "vetReviewRequired", type: "checkbox", defaultValue: false },
+                  ],
+                },
+                {
+                  type: "row",
+                  fields: [
+                    { name: "reviewedBy", type: "relationship", relationTo: "users" },
+                    {
+                      name: "reviewedAt",
+                      type: "date",
+                      admin: { date: { pickerAppearance: "dayAndTime" } },
+                    },
+                  ],
+                },
+                { name: "internalNotes", type: "textarea" },
+              ],
+            },
             {
               name: "sources",
               type: "array",
@@ -124,8 +264,18 @@ export const Articles: CollectionConfig = {
               name: "seo",
               type: "group",
               fields: [
-                { name: "metaTitle", type: "text" },
-                { name: "metaDescription", type: "textarea" },
+                {
+                  name: "metaTitle",
+                  type: "text",
+                  maxLength: 70,
+                  admin: { description: "แนะนำไม่เกิน 70 ตัวอักษร ถ้าเว้นว่างจะใช้ title" },
+                },
+                {
+                  name: "metaDescription",
+                  type: "textarea",
+                  maxLength: 160,
+                  admin: { description: "แนะนำไม่เกิน 160 ตัวอักษร ถ้าเว้นว่างจะใช้ excerpt" },
+                },
                 { name: "ogImage", type: "upload", relationTo: "media" },
               ],
             },

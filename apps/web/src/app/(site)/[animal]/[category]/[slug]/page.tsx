@@ -21,10 +21,11 @@ import {
 } from "@/lib/url";
 
 type Params = Promise<{ animal: string; category: string; slug: string }>;
+type SearchParams = Promise<{ draft?: string; token?: string }>;
 
 export const dynamic = "force-static";
 
-const CALLOUT_LABELS = { tip: "💡 เคล็ดลับ", warning: "⚠️ คำเตือน", info: "ℹ️ ข้อมูล" } as const;
+const CALLOUT_LABELS = { tip: "เคล็ดลับ", warning: "คำเตือน", info: "ข้อมูล" } as const;
 
 type BlockNode = {
   fields?: unknown;
@@ -62,10 +63,119 @@ const bodyConverters = ({ defaultConverters }: { defaultConverters: typeof defau
         </div>
       );
     },
+    keyTakeaways: ({ node }: { node: BlockNode }) => {
+      const { heading, items } = node.fields as {
+        heading?: string;
+        items?: { text?: string }[];
+      };
+      if (!items?.length) return null;
+      return (
+        <section className="block-panel block-key-takeaways">
+          <h2>{heading || "สรุปสั้น ๆ"}</h2>
+          <ul>
+            {items.map((item, index) => (
+              <li key={`${item.text || "takeaway"}-${index}`}>{item.text}</li>
+            ))}
+          </ul>
+        </section>
+      );
+    },
+    redFlags: ({ node }: { node: BlockNode }) => {
+      const { heading, items } = node.fields as {
+        heading?: string;
+        items?: { text?: string }[];
+      };
+      if (!items?.length) return null;
+      return (
+        <section className="block-panel block-red-flags">
+          <h2>{heading || "สัญญาณที่ควรระวัง"}</h2>
+          <ul>
+            {items.map((item, index) => (
+              <li key={`${item.text || "red-flag"}-${index}`}>{item.text}</li>
+            ))}
+          </ul>
+        </section>
+      );
+    },
+    whenToSeeVet: ({ node }: { node: BlockNode }) => {
+      const { urgency, message } = node.fields as {
+        urgency?: "soon" | "urgent" | "watch";
+        message?: string;
+      };
+      if (!message) return null;
+      const label =
+        urgency === "urgent" ? "ควรพบสัตวแพทย์ทันที" : urgency === "watch" ? "เฝ้าดูอาการ" : "ควรนัดตรวจ";
+      return (
+        <section className={`block-panel block-vet block-vet-${urgency || "soon"}`}>
+          <p>{label}</p>
+          <h2>เมื่อไรควรพบสัตวแพทย์</h2>
+          <div>{message}</div>
+        </section>
+      );
+    },
+    stepList: ({ node }: { node: BlockNode }) => {
+      const { heading, steps } = node.fields as {
+        heading?: string;
+        steps?: { detail?: string; title?: string }[];
+      };
+      if (!steps?.length) return null;
+      return (
+        <section className="block-steps">
+          {heading && <h2>{heading}</h2>}
+          <ol>
+            {steps.map((step, index) => (
+              <li key={`${step.title || "step"}-${index}`}>
+                <h3>{step.title}</h3>
+                {step.detail && <p>{step.detail}</p>}
+              </li>
+            ))}
+          </ol>
+        </section>
+      );
+    },
+    comparisonTable: ({ node }: { node: BlockNode }) => {
+      const { heading, leftLabel, rightLabel, rows } = node.fields as {
+        heading?: string;
+        leftLabel?: string;
+        rightLabel?: string;
+        rows?: { left?: string; right?: string; topic?: string }[];
+      };
+      if (!leftLabel || !rightLabel || !rows?.length) return null;
+      return (
+        <section className="block-comparison">
+          {heading && <h2>{heading}</h2>}
+          <div>
+            <table>
+              <thead>
+                <tr>
+                  <th>เรื่อง</th>
+                  <th>{leftLabel}</th>
+                  <th>{rightLabel}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {rows.map((row, index) => (
+                  <tr key={`${row.topic || "row"}-${index}`}>
+                    <th scope="row">{row.topic}</th>
+                    <td>{row.left}</td>
+                    <td>{row.right}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      );
+    },
   },
 });
 
-async function getArticle(animalSlug: string, categorySlug: string, slug: string) {
+async function getArticle(
+  animalSlug: string,
+  categorySlug: string,
+  slug: string,
+  preview?: { draft?: boolean; token?: string },
+) {
   const animal = slugToAnimal(animalSlug);
   if (!animal) return null;
 
@@ -78,7 +188,9 @@ async function getArticle(animalSlug: string, categorySlug: string, slug: string
       ],
     },
     depth: 2,
+    draft: preview?.draft,
     limit: 1,
+    token: preview?.token,
   });
 
   return res.docs[0] ?? null;
@@ -116,15 +228,28 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   };
 }
 
-export default async function ArticlePage({ params }: { params: Params }) {
+export default async function ArticlePage({
+  params,
+  searchParams,
+}: {
+  params: Params;
+  searchParams?: SearchParams;
+}) {
   const { animal: animalSlug, category, slug } = await params;
-  const article = await getArticle(animalSlug, category, slug);
+  const previewParams = await searchParams;
+  const isDraftPreview = previewParams?.draft === "true";
+  const article = await getArticle(animalSlug, category, slug, {
+    draft: isDraftPreview,
+    token: previewParams?.token,
+  });
   if (!article) notFound();
 
   const animal = slugToAnimal(animalSlug)!;
   const categoryName = categoryNameFrom(article.category) || category;
-  const hero = imageFrom(article);
+  const hero = imageFrom(article, undefined, "squareHero");
   const related = await getRelated(animal, category, slug);
+  const hasSources = Array.isArray(article.sources) && article.sources.length > 0;
+  const hasFaq = Array.isArray(article.faq) && article.faq.length > 0;
 
   const published = article.publishedAt
     ? new Date(article.publishedAt).toLocaleDateString("th-TH", {
@@ -145,41 +270,44 @@ export default async function ArticlePage({ params }: { params: Params }) {
       </nav>
 
       <header className="article-head">
-        <p className="article-tag">
-          {animalLabel(animal)} / {categoryName}
-        </p>
-        <h1 className="article-title">{article.title}</h1>
-        {article.excerpt && <p className="article-lead">{article.excerpt}</p>}
-        {published && <p className="article-meta">เผยแพร่ {published}</p>}
-      </header>
+        <div className="article-head-copy">
+          <p className="article-tag">
+            {animalLabel(animal)} / {categoryName}
+          </p>
+          <h1 className="article-title">{article.title}</h1>
+          {article.excerpt && <p className="article-lead">{article.excerpt}</p>}
+          <div className="article-meta-row">
+            {published && <span>เผยแพร่ {published}</span>}
+            <span>อ่าน {article.readingTimeMinutes || 1} นาที</span>
+            {hasSources && <a href="#references">มีแหล่งอ้างอิง</a>}
+          </div>
+        </div>
 
-      {hero && (
-        <figure className="article-hero">
-          <Image
-            src={hero.url}
-            alt={hero.alt || article.title}
-            fill
-            sizes="(min-width: 900px) 760px, 100vw"
-            priority
-          />
-        </figure>
-      )}
+        {hero && (
+          <figure className="article-hero">
+            <Image
+              src={hero.url}
+              alt={hero.alt || article.title}
+              fill
+              sizes="(min-width: 900px) 38vw, 100vw"
+              priority
+            />
+          </figure>
+        )}
+      </header>
 
       <div className="article-body">
         <p className="article-disclaimer">
-          <strong>หมายเหตุ:</strong> ข้อมูลในบทความเป็นข้อมูลทั่วไป
-          ไม่ได้แทนการวินิจฉัยจากสัตวแพทย์
+          <strong>หมายเหตุ:</strong> ข้อมูลในบทความเป็นข้อมูลทั่วไป ไม่ได้แทนการวินิจฉัยจากสัตวแพทย์ หากอาการรุนแรงหรือไม่แน่ใจ ควรพาไปตรวจ
         </p>
 
-        {article.body && (
-          <RichText data={article.body} converters={bodyConverters} />
-        )}
+        {article.body && <RichText data={article.body} converters={bodyConverters} />}
 
-        {Array.isArray(article.sources) && article.sources.length > 0 && (
-          <section className="article-sources">
+        {hasSources && (
+          <section id="references" className="article-sources">
             <h2>แหล่งอ้างอิง</h2>
             <ul>
-              {article.sources.map((s) => (
+              {article.sources!.map((s) => (
                 <li key={s.id || s.url || s.label}>
                   {s.url ? (
                     <a href={s.url} target="_blank" rel="noopener noreferrer">
@@ -194,11 +322,11 @@ export default async function ArticlePage({ params }: { params: Params }) {
           </section>
         )}
 
-        {Array.isArray(article.faq) && article.faq.length > 0 && (
-          <section className="article-faq">
+        {hasFaq && (
+          <section id="faq" className="article-faq">
             <h2>คำถามที่พบบ่อย</h2>
             <dl>
-              {article.faq.map((q) => (
+              {article.faq!.map((q) => (
                 <div key={q.id || q.question} className="faq-item">
                   <dt>{q.question}</dt>
                   <dd>{q.answer}</dd>
@@ -212,27 +340,30 @@ export default async function ArticlePage({ params }: { params: Params }) {
       {related.length > 0 && (
         <section className="article-related">
           <h2>อ่านต่อในหมวด {categoryName}</h2>
-          <div className="channel-grid">
+          <div className="article-related-list">
             {related.map((a) => {
-              const img = imageFrom(a);
+              const img = imageFrom(a, undefined, "squareSmall");
               return (
                 <Link
                   key={a.id}
-                  className="channel-card"
+                  className="article-related-link"
                   href={articleUrl(animal, category, a.slug)}
                 >
                   {img && (
-                    <figure className="channel-card-image">
+                    <figure className="article-related-image">
                       <Image
                         src={img.url}
                         alt={img.alt || a.title}
                         fill
-                        sizes="(min-width: 900px) 33vw, (min-width: 640px) 50vw, 100vw"
+                        sizes="(min-width: 900px) 18vw, 50vw"
                       />
                     </figure>
                   )}
-                  <h3>{a.title}</h3>
-                  {a.excerpt && <p>{a.excerpt}</p>}
+                  <div>
+                    <p>{categoryName}</p>
+                    <h3>{a.title}</h3>
+                    {a.excerpt && <p>{a.excerpt}</p>}
+                  </div>
                 </Link>
               );
             })}

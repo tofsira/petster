@@ -7,9 +7,8 @@ import {
   categorySlugFrom,
   imageFrom,
   type ArticleDoc,
-  type CategoryDoc,
 } from "@/lib/content-types";
-import { articleUrl, categoryUrl, type Animal } from "@/lib/url";
+import { animalUrl, articleUrl, categoryUrl, type Animal } from "@/lib/url";
 
 const FALLBACK_IMAGES = {
   hero: "https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=1200&q=80",
@@ -28,14 +27,13 @@ export const metadata: Metadata = {
 };
 
 async function getHomepageData() {
-  const [featured, categories, dogArticles, catArticles] = await Promise.all([
+  const [featured, dogArticles, catArticles] = await Promise.all([
     cmsFind<ArticleDoc>("articles", {
       where: { featured: { equals: true } },
       sort: "-publishedAt",
       depth: 2,
       limit: 1,
     }),
-    cmsFind<CategoryDoc>("categories", { sort: "name", limit: 4 }),
     cmsFind<ArticleDoc>("articles", {
       where: { animal: { equals: "dog" } },
       sort: "-publishedAt",
@@ -52,16 +50,45 @@ async function getHomepageData() {
 
   return {
     featured: featured.docs[0] ?? null,
-    categories: categories.docs,
     dogArticles: dogArticles.docs,
     catArticles: catArticles.docs,
   };
 }
 
-export default async function HomePage() {
-  const { featured, categories, dogArticles, catArticles } = await getHomepageData();
+function ArticleListItem({
+  article,
+  fallback,
+}: {
+  article: ArticleDoc;
+  fallback: string;
+}) {
+  const animal = article.animal as Animal;
+  const catSlug = categorySlugFrom(article.category);
+  const catName = categoryNameFrom(article.category);
+  const img = imageFrom(article, fallback, "squareSmall");
 
-  const featuredImg = featured ? imageFrom(featured, FALLBACK_IMAGES.hero) : null;
+  return (
+    <Link className="pet-list-link reveal" href={articleUrl(animal, catSlug, article.slug)}>
+      <figure className="pet-list-image">
+        <Image
+          src={img.url}
+          alt={img.alt || article.title}
+          fill
+          sizes="(min-width: 980px) 104px, 84px"
+        />
+      </figure>
+      <div className="pet-list-copy">
+        <h3>{article.title}</h3>
+        {catName && <p>{catName}</p>}
+      </div>
+    </Link>
+  );
+}
+
+export default async function HomePage() {
+  const { featured, dogArticles, catArticles } = await getHomepageData();
+
+  const featuredImg = featured ? imageFrom(featured, FALLBACK_IMAGES.hero, "squareHero") : null;
   const featuredCat = featured ? categorySlugFrom(featured.category) : "";
   const featuredHref = featured
     ? articleUrl(featured.animal as Animal, featuredCat, featured.slug)
@@ -72,8 +99,10 @@ export default async function HomePage() {
       <section className="app-home shell">
         <div className="hero-copy reveal">
           <p className="eyebrow">Petster</p>
-          <h1>คำตอบเรื่องหมาแมวที่อ่านง่ายทุกวัน</h1>
-          <p className="hero-lead">ความรู้ที่อ้างอิงได้ เขียนให้คนเลี้ยงใช้งานจริง</p>
+          <h1>คำตอบเรื่องหมาแมว ที่หาเจอไว</h1>
+          <p className="hero-lead">
+            เว็บความรู้สัตว์เลี้ยงภาษาไทยสำหรับเจ้าของหมาแมว อ่านง่าย อ้างอิงได้ และไม่ทำให้เรื่องสุขภาพดูเบาเกินจริง
+          </p>
         </div>
 
         <form className="search-panel reveal" role="search">
@@ -89,21 +118,15 @@ export default async function HomePage() {
             />
             <button type="submit">ค้นหาบทความ</button>
           </div>
-          <p className="search-trust">
-            <span aria-hidden="true">✓</span>
-            ทุกบทความสุขภาพมีแหล่งอ้างอิงและวันที่อัปเดต
-          </p>
         </form>
 
-        <div className="search-tags reveal" aria-label="Popular searches">
-          <Link href="/dogs/health">หมาอาเจียน</Link>
-          <Link href="/dogs/food">อาหารสุนัข</Link>
-          <Link href="/cats/health">แมวไม่กินอาหาร</Link>
-          <Link href="/dogs/behavior">พฤติกรรม</Link>
-          <Link href="/dogs/health">ฉีดวัคซีน</Link>
-          <Link href="/cats/health">แมวอ้วก</Link>
-          <Link href="/dogs/daily-care">อาบน้ำหมา</Link>
-          <Link href="/cats/daily-care">กระบะทรายแมว</Link>
+        <div id="topics" className="hero-paths reveal" aria-label="ทางลัด">
+          <Link href={animalUrl("dog")}>ดูแลสุนัข</Link>
+          <Link href={animalUrl("cat")}>ดูแลแมว</Link>
+          <Link href={categoryUrl("dogs", "health")}>สุขภาพ</Link>
+          <Link href={categoryUrl("dogs", "food")}>อาหาร</Link>
+          <Link href={categoryUrl("dogs", "behavior")}>พฤติกรรม</Link>
+          <Link href={categoryUrl("dogs", "daily-care")}>ดูแลประจำวัน</Link>
         </div>
 
         {featured && featuredImg && (
@@ -125,98 +148,62 @@ export default async function HomePage() {
         )}
       </section>
 
-      <section id="topics" className="shell section">
+      <section id="questions" className="shell section">
         <div className="section-heading reveal">
-          <p className="eyebrow">หมวดความรู้</p>
-          <h2>หมวดหลัก</h2>
+          <p className="eyebrow">เริ่มจากปัญหาที่เจอบ่อย</p>
+          <h2>คำถามยอดนิยม</h2>
         </div>
 
-        <div className="topic-grid">
-          {categories.map((c) => {
-            const fallback =
-              (FALLBACK_IMAGES as Record<string, string>)[c.slug] || FALLBACK_IMAGES.hero;
-            const img = imageFrom(c, fallback);
-            return (
-              <Link key={c.id} className="topic-card reveal" href={categoryUrl("dogs", c.slug)}>
-                <figure className="topic-card-image">
-                  <Image
-                    src={img.url}
-                    alt={img.alt || c.name}
-                    fill
-                    sizes="(min-width: 900px) 25vw, (min-width: 640px) 50vw, 100vw"
-                  />
-                </figure>
-                <h3>{c.name}</h3>
-                {c.intro && <p>{c.intro}</p>}
-              </Link>
-            );
-          })}
+        <div className="question-list">
+          <Link className="question-link reveal" href={categoryUrl("dogs", "health")}>
+            <h3>หมาอาเจียน ต้องกังวลแค่ไหน</h3>
+            <p>สุขภาพสุนัข</p>
+          </Link>
+          <Link className="question-link reveal" href={categoryUrl("cats", "health")}>
+            <h3>แมวไม่กินอาหาร เกิดจากอะไร</h3>
+            <p>สุขภาพแมว</p>
+          </Link>
+          <Link className="question-link reveal" href={categoryUrl("dogs", "daily-care")}>
+            <h3>อาบน้ำหมาบ่อยแค่ไหนดี</h3>
+            <p>ดูแลประจำวัน</p>
+          </Link>
+          <Link className="question-link reveal" href={categoryUrl("cats", "behavior")}>
+            <h3>แมวข่วนเฟอร์นิเจอร์ แก้ยังไง</h3>
+            <p>พฤติกรรม</p>
+          </Link>
         </div>
       </section>
 
-      <section id="dogs" className="shell section split-section">
+      <section id="dogs" className="shell section pet-columns-section">
         <div className="section-heading reveal">
-          <p className="eyebrow">สำหรับคนเลี้ยงสุนัข</p>
-          <h2>สุนัข</h2>
+          <p className="eyebrow">อ่านตามสัตว์เลี้ยง</p>
+          <h2>สุนัขและแมว</h2>
         </div>
 
-        <div className="channel-grid">
-          {dogArticles.map((a) => {
-            const catSlug = categorySlugFrom(a.category);
-            const catName = categoryNameFrom(a.category);
-            const img = imageFrom(a, FALLBACK_IMAGES.dog);
-            return (
-              <Link
-                key={a.id}
-                className="channel-card reveal"
-                href={articleUrl("dog", catSlug, a.slug)}
-              >
-                <figure className="channel-card-image">
-                  <Image
-                    src={img.url}
-                    alt={img.alt || a.title}
-                    fill
-                    sizes="(min-width: 900px) 33vw, (min-width: 640px) 50vw, 100vw"
-                  />
-                </figure>
-                <h3>{a.title}</h3>
-                {catName && <p>{catName}</p>}
-              </Link>
-            );
-          })}
-        </div>
-      </section>
+        <div className="pet-columns">
+          <section className="pet-column" aria-labelledby="home-dogs">
+            <div className="pet-column-head reveal">
+              <h3 id="home-dogs">สุนัข</h3>
+              <Link href={animalUrl("dog")}>ดูสุนัข</Link>
+            </div>
+            <div className="pet-list">
+              {dogArticles.map((a) => (
+                <ArticleListItem key={a.id} article={a} fallback={FALLBACK_IMAGES.dog} />
+              ))}
+            </div>
+          </section>
 
-      <section id="cats" className="shell section split-section cats-tone">
-        <div className="section-heading reveal">
-          <p className="eyebrow">สำหรับคนเลี้ยงแมว</p>
-          <h2>แมว</h2>
-        </div>
-
-        <div className="channel-grid">
-          {catArticles.map((a) => {
-            const catSlug = categorySlugFrom(a.category);
-            const catName = categoryNameFrom(a.category);
-            const img = imageFrom(a, FALLBACK_IMAGES.cat);
-            return (
-              <Link
-                key={a.id}
-                className="channel-card reveal"
-                href={articleUrl("cat", catSlug, a.slug)}
-              >
-                <figure className="channel-card-image">
-                  <Image
-                    src={img.url}
-                    alt={img.alt || a.title}
-                    fill
-                    sizes="(min-width: 900px) 33vw, (min-width: 640px) 50vw, 100vw"
-                  />
-                </figure>
-                <h3>{a.title}</h3>
-                {catName && <p>{catName}</p>}
-              </Link>
-            );
-          })}
+          <section id="cats" className="pet-column" aria-labelledby="home-cats">
+            <div className="pet-column-head reveal">
+              <h3 id="home-cats">แมว</h3>
+              <Link href={animalUrl("cat")}>ดูแมว</Link>
+            </div>
+            <div className="pet-list">
+              {catArticles.map((a) => (
+                <ArticleListItem key={a.id} article={a} fallback={FALLBACK_IMAGES.cat} />
+              ))}
+            </div>
+          </section>
         </div>
       </section>
 
@@ -228,17 +215,17 @@ export default async function HomePage() {
         </div>
 
         <div className="trust-points">
-          <article className="trust-card reveal">
+          <article className="trust-point reveal">
             <h3>มีแหล่งอ้างอิง</h3>
             <p>เชื่อมกลับไปยัง guideline และ source ที่ทีมใช้จริง</p>
           </article>
-          <article className="trust-card reveal">
+          <article className="trust-point reveal">
             <h3>อ่านเข้าใจง่าย</h3>
             <p>แปลภาษายากให้ใช้ได้จริง โดยไม่ลดความรับผิดชอบ</p>
           </article>
-          <article className="trust-card reveal">
-            <h3>ค้นต่อได้</h3>
-            <p>ทุก section ชวนไปยังหมวดและบทความที่ลึกขึ้น</p>
+          <article className="trust-point reveal">
+            <h3>ไม่วินิจฉัยแทน</h3>
+            <p>บทความสุขภาพมีขอบเขตและเตือนเมื่อควรพบสัตวแพทย์</p>
           </article>
         </div>
       </section>
