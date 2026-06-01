@@ -306,10 +306,6 @@ export interface Article {
         id?: string | null;
       }[]
     | null;
-  /**
-   * เวลาอ่านโดยประมาณ (นาที)
-   */
-  readingTimeMinutes?: number | null;
   author?: (number | null) | Author;
   featured?: boolean | null;
   seo?: {
@@ -545,7 +541,6 @@ export interface ArticlesSelect<T extends boolean = true> {
         answer?: T;
         id?: T;
       };
-  readingTimeMinutes?: T;
   author?: T;
   featured?: T;
   seo?:

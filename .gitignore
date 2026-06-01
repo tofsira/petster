@@ -1,4 +1,9 @@
 .claude/settings.local.json
+.claude/skills/
+.agents/
+.antigravitycli/
+apps/web/.agents/
+apps/web/.claude/
 node_modules/
 .next/
 .env
