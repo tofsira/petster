@@ -104,11 +104,6 @@ export const Articles: CollectionConfig = {
               type: "row",
               fields: [
                 {
-                  name: "readingTimeMinutes",
-                  type: "number",
-                  admin: { description: "เวลาอ่านโดยประมาณ (นาที)" },
-                },
-                {
                   name: "author",
                   type: "relationship",
                   relationTo: "authors",
