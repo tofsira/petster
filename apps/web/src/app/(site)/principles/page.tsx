@@ -7,7 +7,7 @@ export const metadata: Metadata = {
 };
 
 export default async function PrinciplesPage() {
-  const settings = await cmsGlobal<{ healthDisclaimer?: string }>("settings");
+  const settings = await cmsGlobal<{ healthDisclaimer?: string }>("settings").catch(() => null);
 
   return (
     <main className="shell section">
