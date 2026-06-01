@@ -108,6 +108,42 @@ Required env:
 - CMS: `DATABASE_URI`, `PAYLOAD_SECRET`, optional `BLOB_READ_WRITE_TOKEN`
 - Web: `CMS_URL`, `NEXT_PUBLIC_SITE_URL`
 
+Also enable **"Include files outside the root directory"** for both Vercel
+projects in Settings → General.
+
+## Deploy Gotchas
+
+Lessons from first split deploy. Do not repeat these mistakes:
+
+**1. Do not set `installCommand` in `vercel.json`.**
+Vercel detects npm workspaces and runs `npm install` from the repo root
+automatically. A custom `installCommand: "cd ../.. && npm install"` causes
+`npm error Tracker "idealTree" already exists` because it conflicts with
+Vercel's own npm process.
+
+**2. Do not set `outputFileTracingRoot` in `apps/web/next.config.ts`.**
+Web is a fully static site (SSG only). `outputFileTracingRoot` pointing
+to the monorepo root causes Vercel to trace the entire repo and embed the
+path in the output, resulting in a doubled path error:
+`lstat '/vercel/path1/vercel/path1/.next/...'` and deployment failure.
+The CMS app may keep `outputFileTracingRoot` if it ever needs standalone output.
+
+**3. `CMS_URL` must be set in the `petster-app` Vercel project env before the first deploy.**
+Without it the web build defaults to `localhost:3000`, fails to fetch
+`generateStaticParams`, and exits with `ECONNREFUSED`.
+
+**4. Adding a new field to a Payload collection requires the DB column to exist first.**
+`PAYLOAD_DB_PUSH=true` runs during CMS build, but the seed queries the
+table before the push adds new columns, causing `column X does not exist`.
+If a field is new and the DB is already populated, either run the CMS
+deploy alone first (schema push before seed), or remove the field until
+a proper migration is prepared.
+
+**5. `apps/cms/postcss.config.mjs` must not exist.**
+The CMS does not use Tailwind. Any leftover `postcss.config.mjs` from
+the old pre-split `petster-app` will cause `Cannot find module @tailwindcss/postcss`
+during the CMS build.
+
 ## Implemented Pages
 
 | URL | Page | App |
