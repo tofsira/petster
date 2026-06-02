@@ -136,13 +136,14 @@ export default async function HomePage() {
                 src={featuredImg.url}
                 alt={featuredImg.alt || featured.title}
                 fill
-                sizes="(min-width: 900px) 45vw, 100vw"
+                sizes="(min-width: 980px) 34vw, 100vw"
+                priority
               />
             </figure>
             <div className="hero-feature-copy">
-              <p className="signal-label">อ่านต่อก่อน</p>
+              <p className="signal-label">ควรอ่านก่อน</p>
               <h2>{featured.title}</h2>
-              <span className="inline-link">อ่านแนวทาง</span>
+              {featured.excerpt && <p>{featured.excerpt}</p>}
             </div>
           </Link>
         )}
