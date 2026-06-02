@@ -1148,7 +1148,8 @@ h3 {
 }
 
 .category-list-image {
-  height: var(--category-list-h);
+  min-height: var(--category-list-h);
+  align-self: stretch;
   border-radius: var(--radius-sm);
 }
 
@@ -1512,6 +1513,13 @@ h3 {
     border-radius: var(--radius-md);
     overflow: hidden;
     background: var(--surface);
+  }
+
+  .category-list-image {
+    min-height: 0;
+    height: var(--category-list-h);
+    align-self: auto;
+    border-radius: 0;
   }
 }
 
