@@ -1143,7 +1143,8 @@ h3 {
 }
 
 .category-featured-image {
-  height: var(--category-featured-h);
+  min-height: var(--category-featured-h);
+  align-self: stretch;
 }
 
 .category-list-image {

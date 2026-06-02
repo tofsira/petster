@@ -71,6 +71,8 @@ export default async function CategoryHubPage({ params }: { params: Params }) {
         <Link href="/">หน้าแรก</Link>
         <span aria-hidden="true">›</span>
         <Link href={`/${animalToSlug(animal)}`}>{animalLabel(animal)}</Link>
+        <span aria-hidden="true">›</span>
+        <span aria-current="page">{category.name}</span>
       </nav>
 
       <header className="category-head">
