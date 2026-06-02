@@ -188,14 +188,19 @@ Done:
 9. Sitemap and robots
 10. Seed content
 11. Self-hosted Prompt and Sarabun fonts
+12. Implemented design system in `petster.css` (tokens, cover-tile vs document-card,
+    standardized breadcrumb, spacing scale) — documented in `DESIGN.md`
+13. Lexical rich-text body rendered with all content blocks (callout, keyTakeaways,
+    redFlags, whenToSeeVet, stepList, comparisonTable, imageBlock)
 
 Next:
 
-- Render Lexical rich text body more completely on article pages
+- `.article-body` prose CSS for plain richtext paragraphs/lists/headings (still unstyled)
 - Author display on articles
 - JSON-LD for Article, FAQPage, Breadcrumb
 - Search experience
-- Migrate external `heroImageUrl` placeholders to media uploads
+- Migrate external `heroImageUrl` placeholders to media uploads (esp. cat category
+  hero images — cats currently show shared/dog photos on `/cats` category cards)
 
 ## Agent Working Rules
 

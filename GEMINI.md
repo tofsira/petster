@@ -161,19 +161,25 @@ Installed and running:
 - DB adapter switches by `DATABASE_URI`:
   - `file:./petster.db` → SQLite (`@payloadcms/db-sqlite`, default for dev)
   - `postgresql://...` → Postgres (`@payloadcms/db-postgres`, production)
-- Tailwind CSS 4 + shadcn/ui
+- Tailwind CSS 4 (base only). The public site `(site)` is styled by a
+  hand-written design system in `apps/web/src/app/(site)/petster.css`, **not**
+  shadcn/ui. Do not add shadcn components to the public site.
 - Media storage: local in dev, Vercel Blob in prod (auto-enabled when `BLOB_READ_WRITE_TOKEN` is set)
-- Fonts: Prompt (display) + Sarabun (body) via `next/font/google`
+- Fonts: **self-hosted** Prompt (display) + Sarabun (body) as woff2 in
+  `apps/web/public/fonts`, declared via `@font-face` in `petster.css`. **Not**
+  `next/font/google`.
 
 Monorepo (npm workspaces). The Payload **schema** (config, collections, globals,
-types) lives once in `packages/shared` (`@petster/shared`); two apps consume it
-through the Payload Local API:
+types) lives once in `packages/shared` (`@petster/shared`):
 
-- `apps/web` — public site, read-only, deploys to Vercel
-- `apps/cms` — Payload admin + REST/GraphQL, the editing backend (e.g. Railway)
+- `apps/web` — public read-only site. Fetches content over HTTP from the CMS via
+  `CMS_URL` + Payload **REST API** (`apps/web/src/lib/cms.ts`, `cmsFind`). It does
+  **not** use the Local API and does **not** own `/admin` or `/api`. Deploys to Vercel.
+- `apps/cms` — Payload admin + REST/GraphQL + DB writes + media + seed. Owns
+  `/admin`, `/api`, `/api/graphql`. Deploys to its own Vercel project.
 
-Both connect to the same database. Run `npm install` at the repo **root**. Static
-HTML/CSS design experiments live in `design-lab/`.
+Run `npm install` at the repo **root**. Static HTML/CSS design experiments live
+in `design-lab/`.
 
 ## Running the App
 
@@ -211,25 +217,28 @@ packages/shared/src/           # @petster/shared — schema, shared by both apps
 ├── payload-types.ts           # generated — `npm run generate:types`
 └── index.ts                   # exports config + types
 
-apps/web/src/                  # public site (Local API reads) → Vercel
-├── payload.config.ts          # 1-line re-export of @petster/shared/config
+apps/web/src/                  # public site (REST reads via CMS_URL) → Vercel
 ├── lib/
-│   ├── payload.ts             # getPayloadClient()
+│   ├── cms.ts                 # cmsFind() — Payload REST fetch over CMS_URL
+│   ├── cms-paths.ts           # generateStaticParams helpers
+│   ├── content-types.ts       # ArticleDoc/CategoryDoc + imageFrom()
 │   └── url.ts                 # animal singular↔plural helpers
 ├── components/
-│   ├── site-chrome.tsx        # SiteHeader, SiteFooter, BottomNav
+│   ├── site-header.tsx, site-footer.tsx, bottom-nav.tsx
 │   └── reveal-on-scroll.tsx   # IntersectionObserver client component
 └── app/
     ├── layout.tsx             # pass-through root
     ├── sitemap.ts, robots.ts
     └── (site)/                # public website routes
-        ├── layout.tsx         # html/body + fonts + chrome
-        ├── petster.css        # design system CSS
+        ├── layout.tsx         # html/body + chrome
+        ├── petster.css        # design system CSS + @font-face (self-hosted)
         ├── page.tsx           # homepage
         ├── principles/page.tsx
-        └── [animal]/[category]/[slug]/page.tsx
+        ├── [animal]/page.tsx              # animal hub
+        ├── [animal]/[category]/page.tsx   # category hub
+        └── [animal]/[category]/[slug]/page.tsx  # article (Lexical bodyConverters)
 
-apps/cms/src/                  # editing backend (Local API reads + writes) → Railway
+apps/cms/src/                  # editing backend (Local API + writes) → Vercel
 ├── payload.config.ts          # 1-line re-export of @petster/shared/config
 └── app/(payload)/             # Payload admin (/admin) + API (/api), auto-generated
 ```
