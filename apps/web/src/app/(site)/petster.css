@@ -1089,8 +1089,18 @@ h3 {
   text-decoration: underline;
 }
 
-.breadcrumb span {
-  color: var(--line);
+.breadcrumb span[aria-hidden] {
+  color: var(--muted);
+  opacity: 0.5;
+}
+
+.breadcrumb [aria-current] {
+  max-width: 22ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--ink);
+  font-weight: 600;
 }
 
 /* Category archive */

@@ -267,6 +267,8 @@ export default async function ArticlePage({
         <Link href={`/${animalToSlug(animal)}`}>{animalLabel(animal)}</Link>
         <span aria-hidden="true">›</span>
         <Link href={`/${animalToSlug(animal)}/${category}`}>{categoryName}</Link>
+        <span aria-hidden="true">›</span>
+        <span aria-current="page">{article.title}</span>
       </nav>
 
       <header className="article-head">
