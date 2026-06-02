@@ -47,7 +47,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   const a = slugToAnimal(animal);
   if (!a) return { title: "ไม่พบ | Petster" };
   return {
-    title: `${animalLabel(a)} | Petster`,
+    title: animalLabel(a),
     description: `รวมความรู้เรื่อง${animalLabel(a)} ครบทุกหมวด — สุขภาพ อาหาร พฤติกรรม และการดูแลประจำวัน`,
   };
 }
@@ -63,7 +63,6 @@ export default async function AnimalHubPage({ params }: { params: Params }) {
     <main className="shell animal-page">
       <header className="animal-head">
         <div>
-          <p className="eyebrow">หมวดความรู้</p>
           <h1>{animalLabel(animal)}</h1>
         </div>
         <p>
@@ -101,10 +100,7 @@ export default async function AnimalHubPage({ params }: { params: Params }) {
 
       {articles.length > 0 && (
         <section className="animal-section">
-          <div className="section-heading">
-            <p className="eyebrow">Latest</p>
-            <h2>บทความล่าสุด</h2>
-          </div>
+          <h2 className="section-label">บทความล่าสุด</h2>
 
           <div className="animal-article-list">
             {articles.map((article) => (

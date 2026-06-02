@@ -1480,6 +1480,7 @@ h3 {
 
 .animal-article-copy span {
   display: none;
+  line-height: 1.45;
 }
 
 .animal-article-link:hover img {
@@ -1509,6 +1510,7 @@ h3 {
 
   .category-article-link {
     grid-template-columns: 1fr;
+    padding: 0;
     border: 1px solid var(--line);
     border-radius: var(--radius-md);
     overflow: hidden;
@@ -1559,7 +1561,10 @@ h3 {
   }
 
   .animal-article-copy span {
-    display: block;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
 }
 
