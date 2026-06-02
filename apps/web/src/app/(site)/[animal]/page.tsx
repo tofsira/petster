@@ -61,6 +61,12 @@ export default async function AnimalHubPage({ params }: { params: Params }) {
 
   return (
     <main className="shell animal-page">
+      <nav className="breadcrumb" aria-label="Breadcrumb">
+        <Link href="/">หน้าแรก</Link>
+        <span aria-hidden="true">›</span>
+        <span aria-current="page">{animalLabel(animal)}</span>
+      </nav>
+
       <header className="animal-head">
         <div>
           <h1>{animalLabel(animal)}</h1>
