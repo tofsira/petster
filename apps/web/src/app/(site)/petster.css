@@ -171,7 +171,6 @@
   --category-featured-h: 116px;
   --category-list-w: 88px;
   --category-list-h: 92px;
-  --article-hero-h: 164px;
   --article-related-h: 104px;
 }
 
@@ -1022,6 +1021,10 @@ h3 {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 
+  .animal-article-list {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
   .pet-list {
     grid-template-columns: 1fr;
   }
@@ -1554,9 +1557,32 @@ h3 {
     overflow: visible;
   }
 
+  .animal-article-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-3);
+    border-top: 0;
+  }
+
   .animal-article-link {
-    grid-template-columns: 8.25rem minmax(0, 1fr);
-    min-height: 8.25rem;
+    grid-template-columns: 1fr;
+    min-height: 0;
+    padding: 0;
+    border-bottom: 0;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    background: var(--surface);
+  }
+
+  .animal-article-image {
+    aspect-ratio: auto;
+    height: var(--animal-card-image-h);
+    border-radius: 0;
+  }
+
+  .animal-article-copy {
+    align-content: start;
+    padding: 0.75rem;
   }
 
   .animal-article-copy span {
@@ -1571,7 +1597,7 @@ h3 {
   :root {
     --category-featured-w: 196px;
     --category-featured-h: 142px;
-    --category-list-h: 132px;
+    --category-list-h: 148px;
   }
 
   .category-content-grid {
