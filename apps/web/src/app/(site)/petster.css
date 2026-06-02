@@ -1260,6 +1260,12 @@ h3 {
   gap: var(--space-5);
 }
 
+.category-content-grid > div {
+  display: grid;
+  gap: var(--space-6);
+  align-content: start;
+}
+
 .category-paths {
   display: grid;
   gap: 0.5rem;
