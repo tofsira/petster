@@ -1021,10 +1021,6 @@ h3 {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 
-  .animal-article-list {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-
   .pet-list {
     grid-template-columns: 1fr;
   }
@@ -1558,7 +1554,7 @@ h3 {
   }
 
   .animal-article-list {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: var(--space-3);
     border-top: 0;
   }
