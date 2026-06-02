@@ -1346,7 +1346,7 @@ h3 {
 .animal-topic-card {
   position: relative;
   display: block;
-  height: var(--animal-topic-h);
+  aspect-ratio: 1 / 1;
   overflow: hidden;
   border-radius: var(--radius-md);
   background: var(--trust);
