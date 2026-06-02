@@ -13,6 +13,10 @@
     "build:web": "npm run build --workspace petster-web",
     "build:cms": "npm run build --workspace petster-cms",
     "seed": "npm run seed --workspace petster-cms",
-    "generate:types": "npm run generate:types --workspace petster-cms"
+    "generate:types": "npm run generate:types --workspace petster-cms",
+    "doctor": "npx react-doctor@latest"
+  },
+  "devDependencies": {
+    "react-doctor": "^0.2.16"
   }
 }
