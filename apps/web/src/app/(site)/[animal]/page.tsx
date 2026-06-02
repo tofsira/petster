@@ -12,6 +12,7 @@ import {
   type CategoryDoc,
 } from "@/lib/content-types";
 import { slugToAnimal, animalLabel, categoryUrl, articleUrl } from "@/lib/url";
+import { ConnectionNotice } from "@/components/connection-notice";
 
 type Params = Promise<{ animal: string }>;
 
@@ -52,6 +53,7 @@ async function getAnimalData(animalSlug: string) {
     categories: categories.docs,
     articles: articles.docs.slice(0, 9),
     categoryImage,
+    connectionError: !categories.ok && !articles.ok,
   };
 }
 
@@ -74,7 +76,7 @@ export default async function AnimalHubPage({ params }: { params: Params }) {
   const data = await getAnimalData(animalSlug);
   if (!data) notFound();
 
-  const { animal, categories, articles, categoryImage } = data;
+  const { animal, categories, articles, categoryImage, connectionError } = data;
 
   return (
     <main className="shell animal-page">
@@ -92,6 +94,8 @@ export default async function AnimalHubPage({ params }: { params: Params }) {
           รวมบทความสำหรับคนเลี้ยง{animalLabel(animal)} ตั้งแต่สุขภาพ อาหาร พฤติกรรม ไปจนถึงการดูแลประจำวัน
         </p>
       </header>
+
+      {connectionError && <ConnectionNotice />}
 
       {categories.length > 0 && (
         <section id="topics" className="animal-card-section">

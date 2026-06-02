@@ -5,15 +5,21 @@ import type { Metadata } from "next";
 import { cmsFind } from "@/lib/cms";
 import { getCategoryStaticParams } from "@/lib/cms-paths";
 import { imageFrom, type ArticleDoc, type CategoryDoc } from "@/lib/content-types";
-import { slugToAnimal, animalLabel, articleUrl, animalToSlug } from "@/lib/url";
+import { slugToAnimal, animalLabel, articleUrl, animalToSlug, type Animal } from "@/lib/url";
+import { ConnectionNotice } from "@/components/connection-notice";
 
 type Params = Promise<{ animal: string; category: string }>;
 
 export const dynamic = "force-static";
 
-async function getCategoryData(animalSlug: string, categorySlug: string) {
+type CategoryData =
+  | { status: "ok"; animal: Animal; category: CategoryDoc; articles: ArticleDoc[] }
+  | { status: "not-found" }
+  | { status: "error" };
+
+async function getCategoryData(animalSlug: string, categorySlug: string): Promise<CategoryData> {
   const animal = slugToAnimal(animalSlug);
-  if (!animal) return null;
+  if (!animal) return { status: "not-found" };
 
   const catRes = await cmsFind<CategoryDoc>("categories", {
     where: {
@@ -25,7 +31,7 @@ async function getCategoryData(animalSlug: string, categorySlug: string) {
     limit: 1,
   });
   const category = catRes.docs[0];
-  if (!category) return null;
+  if (!category) return catRes.ok ? { status: "not-found" } : { status: "error" };
 
   const articles = await cmsFind<ArticleDoc>("articles", {
     where: {
@@ -39,7 +45,7 @@ async function getCategoryData(animalSlug: string, categorySlug: string) {
     limit: 24,
   });
 
-  return { animal, category, articles: articles.docs };
+  return { status: "ok", animal, category, articles: articles.docs };
 }
 
 export async function generateStaticParams() {
@@ -49,7 +55,9 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
   const { animal, category } = await params;
   const data = await getCategoryData(animal, category);
-  if (!data) return { title: "ไม่พบหมวด" };
+  if (data.status !== "ok") {
+    return { title: data.status === "error" ? "Petster" : "ไม่พบหมวด" };
+  }
 
   return {
     title: `${data.category.name} ${animalLabel(data.animal)}`,
@@ -60,7 +68,17 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
 export default async function CategoryHubPage({ params }: { params: Params }) {
   const { animal: animalSlug, category: categorySlug } = await params;
   const data = await getCategoryData(animalSlug, categorySlug);
-  if (!data) notFound();
+  if (data.status === "not-found") notFound();
+  if (data.status === "error") {
+    return (
+      <main className="shell category-page">
+        <nav className="breadcrumb" aria-label="Breadcrumb">
+          <Link href="/">หน้าแรก</Link>
+        </nav>
+        <ConnectionNotice />
+      </main>
+    );
+  }
 
   const { animal, category, articles } = data;
   const [featuredArticle, ...latestArticles] = articles;

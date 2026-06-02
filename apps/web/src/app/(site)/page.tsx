@@ -9,6 +9,7 @@ import {
   type ArticleDoc,
 } from "@/lib/content-types";
 import { animalUrl, articleUrl, categoryUrl, type Animal } from "@/lib/url";
+import { ConnectionNotice } from "@/components/connection-notice";
 
 const FALLBACK_IMAGES = {
   hero: "https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=1200&q=80",
@@ -52,6 +53,7 @@ async function getHomepageData() {
     featured: featured.docs[0] ?? null,
     dogArticles: dogArticles.docs,
     catArticles: catArticles.docs,
+    connectionError: !featured.ok && !dogArticles.ok && !catArticles.ok,
   };
 }
 
@@ -86,7 +88,7 @@ function ArticleListItem({
 }
 
 export default async function HomePage() {
-  const { featured, dogArticles, catArticles } = await getHomepageData();
+  const { featured, dogArticles, catArticles, connectionError } = await getHomepageData();
 
   const featuredImg = featured ? imageFrom(featured, FALLBACK_IMAGES.hero, "squareHero") : null;
   const featuredCat = featured ? categorySlugFrom(featured.category) : "";
@@ -180,6 +182,8 @@ export default async function HomePage() {
           <p className="eyebrow">อ่านตามสัตว์เลี้ยง</p>
           <h2>สุนัขและแมว</h2>
         </div>
+
+        {connectionError && <ConnectionNotice />}
 
         <div className="pet-columns">
           <section className="pet-column" aria-labelledby="home-dogs">

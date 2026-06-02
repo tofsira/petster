@@ -19,6 +19,7 @@ import {
   articleUrl,
   type Animal,
 } from "@/lib/url";
+import { ConnectionNotice } from "@/components/connection-notice";
 
 type Params = Promise<{ animal: string; category: string; slug: string }>;
 type SearchParams = Promise<{ draft?: string; token?: string }>;
@@ -175,9 +176,9 @@ async function getArticle(
   categorySlug: string,
   slug: string,
   preview?: { draft?: boolean; token?: string },
-) {
+): Promise<{ article: ArticleDoc | null; ok: boolean }> {
   const animal = slugToAnimal(animalSlug);
-  if (!animal) return null;
+  if (!animal) return { article: null, ok: true };
 
   const res = await cmsFind<ArticleDoc>("articles", {
     where: {
@@ -193,7 +194,7 @@ async function getArticle(
     token: preview?.token,
   });
 
-  return res.docs[0] ?? null;
+  return { article: res.docs[0] ?? null, ok: res.ok };
 }
 
 async function getRelated(animal: Animal, categorySlug: string, excludeSlug: string) {
@@ -218,7 +219,7 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
   const { animal, category, slug } = await params;
-  const article = await getArticle(animal, category, slug);
+  const { article } = await getArticle(animal, category, slug);
   if (!article) return { title: "ไม่พบบทความ" };
 
   const seo = article.seo as { metaTitle?: string; metaDescription?: string } | undefined;
@@ -238,10 +239,20 @@ export default async function ArticlePage({
   const { animal: animalSlug, category, slug } = await params;
   const previewParams = await searchParams;
   const isDraftPreview = previewParams?.draft === "true";
-  const article = await getArticle(animalSlug, category, slug, {
+  const { article, ok } = await getArticle(animalSlug, category, slug, {
     draft: isDraftPreview,
     token: previewParams?.token,
   });
+  if (!ok) {
+    return (
+      <main className="shell article-page">
+        <nav className="breadcrumb" aria-label="Breadcrumb">
+          <Link href="/">หน้าแรก</Link>
+        </nav>
+        <ConnectionNotice />
+      </main>
+    );
+  }
   if (!article) notFound();
 
   const animal = slugToAnimal(animalSlug)!;

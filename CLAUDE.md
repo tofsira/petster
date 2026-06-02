@@ -122,15 +122,21 @@ automatically. A custom `installCommand: "cd ../.. && npm install"` causes
 Vercel's own npm process.
 
 **2. Do not set `outputFileTracingRoot` in `apps/web/next.config.ts`.**
-Web is a fully static site (SSG only). `outputFileTracingRoot` pointing
+Web is prerendered (SSG with ISR: pages set `revalidate: 60`, so content
+refreshes in the background and a CMS hiccup at runtime serves the last good
+page instead of erroring). `outputFileTracingRoot` pointing
 to the monorepo root causes Vercel to trace the entire repo and embed the
 path in the output, resulting in a doubled path error:
 `lstat '/vercel/path1/vercel/path1/.next/...'` and deployment failure.
 The CMS app may keep `outputFileTracingRoot` if it ever needs standalone output.
 
 **3. `CMS_URL` must be set in the `petster-app` Vercel project env before the first deploy.**
-Without it the web build defaults to `localhost:3000`, fails to fetch
-`generateStaticParams`, and exits with `ECONNREFUSED`.
+Without it the web build defaults to `localhost:3000`. As of the resilient
+fetch layer (`lib/cms.ts` returns `{ ..., ok }` instead of throwing), a missing
+or unreachable CMS no longer crashes the build — it logs `CMS <collection>:
+fetch failed` and ships pages with a `<ConnectionNotice>` and empty
+`generateStaticParams`. That is a silent-empty-site footgun: always confirm
+`CMS_URL` is set and the build log is clean before promoting a deploy.
 
 **4. Adding a new field to a Payload collection requires the DB column to exist first.**
 `PAYLOAD_DB_PUSH=true` runs during CMS build, but the seed queries the

@@ -33,6 +33,8 @@ function buildQuery(params: {
   return new URLSearchParams(flat).toString();
 }
 
+export type CmsResult<T> = { docs: T[]; totalDocs: number; ok: boolean };
+
 export async function cmsFind<T>(
   collection: string,
   params: {
@@ -43,20 +45,32 @@ export async function cmsFind<T>(
     draft?: boolean;
     token?: string;
   } = {},
-): Promise<{ docs: T[]; totalDocs: number }> {
+): Promise<CmsResult<T>> {
   const qs = buildQuery(params);
   const headers = params.token ? { Authorization: `JWT ${params.token}` } : undefined;
-  const res = await fetch(
-    `${CMS_URL}/api/${collection}?${qs}`,
-    params.draft
-      ? { cache: "no-store", headers }
-      : {
-          headers,
-          next: { revalidate: 60 },
-        },
-  );
-  if (!res.ok) throw new Error(`CMS ${collection}: ${res.status}`);
-  return res.json();
+  // Never throw: a CMS outage must not fail the build (returns empty params) or
+  // crash a Server Component at runtime. Callers inspect `ok` to tell a real
+  // "no content" from a "could not reach the CMS" and render accordingly.
+  try {
+    const res = await fetch(
+      `${CMS_URL}/api/${collection}?${qs}`,
+      params.draft
+        ? { cache: "no-store", headers }
+        : {
+            headers,
+            next: { revalidate: 60 },
+          },
+    );
+    if (!res.ok) {
+      console.error(`CMS ${collection}: HTTP ${res.status}`);
+      return { docs: [], totalDocs: 0, ok: false };
+    }
+    const json = (await res.json()) as { docs?: T[]; totalDocs?: number };
+    return { docs: json.docs ?? [], totalDocs: json.totalDocs ?? 0, ok: true };
+  } catch (err) {
+    console.error(`CMS ${collection}: ${(err as Error).message}`);
+    return { docs: [], totalDocs: 0, ok: false };
+  }
 }
 
 export async function cmsGlobal<T>(slug: string): Promise<T> {

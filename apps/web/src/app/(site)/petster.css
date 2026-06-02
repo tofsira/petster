@@ -1249,6 +1249,42 @@ h3 {
   font-weight: 600;
 }
 
+.connection-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  margin: var(--space-4) 0;
+  padding: var(--space-4);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface, #fff);
+}
+
+.connection-notice-icon {
+  flex: none;
+  font-size: 1.25rem;
+  line-height: 1.4;
+  color: var(--trust);
+}
+
+.connection-notice-copy {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.connection-notice-title {
+  margin: 0;
+  font-weight: 600;
+  color: var(--ink, var(--trust));
+}
+
+.connection-notice-detail {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+  line-height: 1.55;
+}
+
 .category-featured-link:hover img,
 .category-article-link:hover img {
   transform: scale(1.03);
