@@ -84,19 +84,17 @@ export default async function AnimalHubPage({ params }: { params: Params }) {
               return (
                 <Link key={category.id} className="animal-topic-card" href={categoryUrl(animal, category.slug)}>
                   {img && (
-                    <figure className="animal-topic-image">
-                      <Image
-                        src={img.url}
-                        alt={img.alt || category.name}
-                        fill
-                        sizes="(min-width: 720px) 25vw, 50vw"
-                      />
-                    </figure>
+                    <Image
+                      src={img.url}
+                      alt={img.alt || category.name}
+                      fill
+                      sizes="(min-width: 720px) 25vw, 50vw"
+                    />
                   )}
-                  <div className="animal-topic-body">
-                    <span>{category.name}</span>
-                    {category.intro && <p>{category.intro}</p>}
-                  </div>
+                  <span className="animal-topic-overlay">
+                    <span className="animal-topic-name">{category.name}</span>
+                    <span className="animal-topic-arrow" aria-hidden="true">→</span>
+                  </span>
                 </Link>
               );
             })}
@@ -137,9 +135,12 @@ function AnimalArticleLink({ article, animal }: { article: ArticleDoc; animal: "
         </figure>
       )}
       <div className="animal-article-copy">
-        {catName && <p>{catName}</p>}
+        {catName && <p className="animal-article-tag">{catName}</p>}
         <h3>{article.title}</h3>
         {article.excerpt && <span>{article.excerpt}</span>}
+        {article.readingTimeMinutes && (
+          <p className="animal-article-meta">อ่าน {article.readingTimeMinutes} นาที</p>
+        )}
       </div>
     </Link>
   );
