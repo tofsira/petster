@@ -21,7 +21,7 @@ async function getAnimalData(animalSlug: string) {
   const animal = slugToAnimal(animalSlug);
   if (!animal) return null;
 
-  const [categories, latest] = await Promise.all([
+  const [categories, articles] = await Promise.all([
     cmsFind<CategoryDoc>("categories", {
       where: { or: [{ animal: { equals: animal } }, { animal: { equals: "both" } }] },
       sort: "name",
@@ -31,11 +31,28 @@ async function getAnimalData(animalSlug: string) {
       where: { animal: { equals: animal } },
       sort: "-publishedAt",
       depth: 1,
-      limit: 9,
+      limit: 100,
     }),
   ]);
 
-  return { animal, categories: categories.docs, articles: latest.docs };
+  // Categories are shared (animal: "both"), so their own hero image can't match
+  // both animals. Use the newest article image per category for an animal-correct
+  // cover photo; fall back to the category's own image.
+  const categoryImage: Record<string, ReturnType<typeof imageFrom>> = {};
+  for (const article of articles.docs) {
+    const slug = categorySlugFrom(article.category);
+    if (slug && !categoryImage[slug]) {
+      const img = imageFrom(article, undefined, "squareCard");
+      if (img) categoryImage[slug] = img;
+    }
+  }
+
+  return {
+    animal,
+    categories: categories.docs,
+    articles: articles.docs.slice(0, 9),
+    categoryImage,
+  };
 }
 
 export async function generateStaticParams() {
@@ -57,7 +74,7 @@ export default async function AnimalHubPage({ params }: { params: Params }) {
   const data = await getAnimalData(animalSlug);
   if (!data) notFound();
 
-  const { animal, categories, articles } = data;
+  const { animal, categories, articles, categoryImage } = data;
 
   return (
     <main className="shell animal-page">
@@ -80,19 +97,20 @@ export default async function AnimalHubPage({ params }: { params: Params }) {
         <section id="topics" className="animal-card-section">
           <div className="animal-card-grid" aria-label={`หมวดความรู้${animalLabel(animal)}`}>
             {categories.map((category) => {
-              const img = imageFrom(category, undefined, "squareCard");
+              const img = categoryImage[category.slug] || imageFrom(category, undefined, "squareCard");
+              const label = `${category.name}${animalLabel(animal)}`;
               return (
                 <Link key={category.id} className="animal-topic-card" href={categoryUrl(animal, category.slug)}>
                   {img && (
                     <Image
                       src={img.url}
-                      alt={img.alt || category.name}
+                      alt={img.alt || label}
                       fill
                       sizes="(min-width: 720px) 25vw, 50vw"
                     />
                   )}
                   <span className="animal-topic-overlay">
-                    <span className="animal-topic-name">{category.name}</span>
+                    <span className="animal-topic-name">{label}</span>
                     <span className="animal-topic-arrow" aria-hidden="true">→</span>
                   </span>
                 </Link>
