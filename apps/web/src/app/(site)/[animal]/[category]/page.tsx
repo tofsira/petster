@@ -5,7 +5,7 @@ import type { Metadata } from "next";
 import { cmsFind } from "@/lib/cms";
 import { getCategoryStaticParams } from "@/lib/cms-paths";
 import { imageFrom, type ArticleDoc, type CategoryDoc } from "@/lib/content-types";
-import { slugToAnimal, animalLabel, articleUrl, animalToSlug } from "@/lib/url";
+import { slugToAnimal, animalLabel, articleUrl, animalToSlug, categoryUrl } from "@/lib/url";
 
 type Params = Promise<{ animal: string; category: string }>;
 
@@ -82,48 +82,70 @@ export default async function CategoryHubPage({ params }: { params: Params }) {
       {articles.length === 0 ? (
         <p className="empty-note">ยังไม่มีบทความในหมวดนี้</p>
       ) : (
-        <>
-          {featuredArticle && (
-            <section className="category-section">
-              <div className="section-heading">
-                <p className="eyebrow">อ่านก่อน</p>
-                <h2>บทความแนะนำ</h2>
-              </div>
+        <section className="category-content-grid">
+          <div>
+            {featuredArticle && (
+              <section className="category-section">
+                <div className="section-heading">
+                  <p className="eyebrow">อ่านก่อน</p>
+                  <h2>บทความแนะนำ</h2>
+                </div>
 
-              <CategoryArticleLink
-                article={featuredArticle}
-                animal={animal}
-                categorySlug={categorySlug}
-                variant="featured"
-              />
-            </section>
-          )}
+                <CategoryArticleLink
+                  article={featuredArticle}
+                  animal={animal}
+                  categorySlug={categorySlug}
+                  variant="featured"
+                />
+              </section>
+            )}
 
-          {latestArticles.length > 0 && (
-            <section className="category-section">
-              <div className="section-heading">
-                <p className="eyebrow">Latest</p>
-                <h2>บทความล่าสุด</h2>
-              </div>
+            {latestArticles.length > 0 && (
+              <section className="category-section">
+                <div className="section-heading">
+                  <p className="eyebrow">Latest</p>
+                  <h2>บทความล่าสุด</h2>
+                </div>
 
-              <div className="category-list">
-                {latestArticles.map((article) => (
-                  <CategoryArticleLink
-                    key={article.id}
-                    article={article}
-                    animal={animal}
-                    categorySlug={categorySlug}
-                  />
-                ))}
-              </div>
-            </section>
-          )}
+                <div className="category-list">
+                  {latestArticles.map((article) => (
+                    <CategoryArticleLink
+                      key={article.id}
+                      article={article}
+                      animal={animal}
+                      categorySlug={categorySlug}
+                    />
+                  ))}
+                </div>
+              </section>
+            )}
+          </div>
 
-          <section className="category-note">
-            <h2>บทความช่วยคัดกรอง ไม่แทนการวินิจฉัย</h2>
-            <p>ถ้ามีอาการรุนแรง ซึมมาก หายใจลำบาก อาเจียนซ้ำ หรือมีเลือดปน ควรติดต่อสัตวแพทย์ทันที</p>
-          </section>
-        </>
+          <aside className="category-paths" aria-label="ช่วยเลือกเรื่องที่ควรอ่าน">
+            <header className="section-heading">
+              <h2>เริ่มจากสิ่งที่เห็น</h2>
+            </header>
+            <div className="category-path-note">
+              ถ้าอาการรุนแรง ซึมมาก หายใจลำบาก หรือมีเลือดปน ควรติดต่อสัตวแพทย์ทันที ก่อนอ่านต่อ
+            </div>
+            <Link className="category-path" href={categoryUrl(animal, categorySlug)}>
+              <span>กินน้อยหรือไม่กิน<small>แยกความเครียด เบื่ออาหาร และสัญญาณป่วย</small></span>
+              <span aria-hidden="true">→</span>
+            </Link>
+            <Link className="category-path" href={categoryUrl(animal, categorySlug)}>
+              <span>อาเจียนหรือถ่ายเหลว<small>ดูความถี่ อาการร่วม และเวลาที่ควรไปคลินิก</small></span>
+              <span aria-hidden="true">→</span>
+            </Link>
+            <Link className="category-path" href={categoryUrl(animal, categorySlug)}>
+              <span>คัน เกา หรือขนร่วง<small>เริ่มจากผิวหนัง เห็บหมัด แพ้อาหาร และการอาบน้ำ</small></span>
+              <span aria-hidden="true">→</span>
+            </Link>
+            <Link className="category-path" href={categoryUrl(animal, categorySlug)}>
+              <span>ดูแลสุนัขสูงวัย<small>เช็กน้ำหนัก ข้อ ฟัน และพฤติกรรมที่เปลี่ยนไป</small></span>
+              <span aria-hidden="true">→</span>
+            </Link>
+          </aside>
+        </section>
       )}
     </main>
   );
