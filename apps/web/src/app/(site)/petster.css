@@ -2003,7 +2003,7 @@ h3 {
 .article-related-link div {
   display: grid;
   gap: 0.3rem;
-  align-content: center;
+  align-content: start;
 }
 
 .article-related-link h3 {
