@@ -289,7 +289,7 @@ export default async function ArticlePage({
               src={hero.url}
               alt={hero.alt || article.title}
               fill
-              sizes="(min-width: 900px) 38vw, 100vw"
+              sizes="(min-width: 900px) 340px, 100vw"
               priority
             />
           </figure>
