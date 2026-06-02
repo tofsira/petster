@@ -1403,7 +1403,7 @@ h3 {
 .animal-page {
   display: grid;
   gap: 1rem;
-  padding: 1.1rem 0 2rem;
+  padding: 0 0 2rem;
 }
 
 .animal-head {
@@ -2025,10 +2025,6 @@ h3 {
 @media (min-width: 800px) {
   :root {
     --article-related-h: 128px;
-  }
-
-  .article-page {
-    padding-top: 0.25rem;
   }
 
   .article-related-list {
