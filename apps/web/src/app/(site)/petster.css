@@ -1566,21 +1566,37 @@ h3 {
   }
 
   .category-list {
-    display: block;
-    columns: 2;
-    column-gap: var(--space-3);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-3);
+    align-items: start;
     border-top: 0;
   }
 
   .category-article-link {
     grid-template-columns: 1fr;
-    margin-bottom: var(--space-3);
     padding: 0;
     border: 1px solid var(--line);
     border-radius: var(--radius-md);
     overflow: hidden;
     background: var(--surface);
-    break-inside: avoid;
+  }
+
+  /* equal-height cards: reserve fixed lines, keep row-first order */
+  .category-article-link .category-article-copy h3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    min-height: calc(1.28em * 2);
+  }
+
+  .category-article-link .category-article-copy span {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    line-height: 1.5;
+    min-height: calc(1.5em * 2);
   }
 
   .category-list-image {
@@ -1631,23 +1647,35 @@ h3 {
   }
 
   .animal-article-list {
-    display: block;
-    columns: 4;
-    column-gap: var(--space-3);
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--space-3);
+    align-items: start;
     border-top: 0;
   }
 
   .animal-article-link {
     grid-template-columns: 1fr;
     min-height: 0;
-    margin-bottom: var(--space-3);
     padding: 0;
     border-bottom: 0;
     border: 1px solid var(--line);
     border-radius: var(--radius-md);
     overflow: hidden;
     background: var(--surface);
-    break-inside: avoid;
+  }
+
+  .animal-article-link .animal-article-copy h3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    min-height: calc(1.28em * 2);
+  }
+
+  .animal-article-link .animal-article-copy span {
+    -webkit-line-clamp: 2;
+    line-height: 1.5;
+    min-height: calc(1.5em * 2);
   }
 
   .animal-article-image {
@@ -1682,7 +1710,7 @@ h3 {
   }
 
   .category-list {
-    columns: 3;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
