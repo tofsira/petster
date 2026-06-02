@@ -1566,19 +1566,21 @@ h3 {
   }
 
   .category-list {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: var(--space-3);
-    align-items: start;
+    display: block;
+    columns: 2;
+    column-gap: var(--space-3);
     border-top: 0;
   }
 
   .category-article-link {
     grid-template-columns: 1fr;
+    margin-bottom: var(--space-3);
     padding: 0;
     border: 1px solid var(--line);
     border-radius: var(--radius-md);
     overflow: hidden;
     background: var(--surface);
+    break-inside: avoid;
   }
 
   .category-list-image {
@@ -1629,21 +1631,23 @@ h3 {
   }
 
   .animal-article-list {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: var(--space-3);
-    align-items: start;
+    display: block;
+    columns: 4;
+    column-gap: var(--space-3);
     border-top: 0;
   }
 
   .animal-article-link {
     grid-template-columns: 1fr;
     min-height: 0;
+    margin-bottom: var(--space-3);
     padding: 0;
     border-bottom: 0;
     border: 1px solid var(--line);
     border-radius: var(--radius-md);
     overflow: hidden;
     background: var(--surface);
+    break-inside: avoid;
   }
 
   .animal-article-image {
@@ -1678,7 +1682,7 @@ h3 {
   }
 
   .category-list {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    columns: 3;
   }
 }
 
