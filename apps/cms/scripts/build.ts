@@ -29,8 +29,29 @@ async function main() {
 
   if (isPostgres) {
     process.env.PAYLOAD_DB_PUSH = "true";
-    const { seedDatabase } = await import("./seed");
-    await seedDatabase();
+
+    // @payloadcms/db-postgres only runs pushDevSchema when NODE_ENV !== "production"
+    // (see connect.js). On Vercel NODE_ENV is "production", so newly added schema
+    // columns are never created and the seed then fails with "column ... does not
+    // exist". Since this repo has no migrations and relies entirely on push, we
+    // temporarily drop out of production mode so the schema push runs against the
+    // production DB, then restore it before `next build`.
+    //
+    // This is safe re: data loss: pushDevSchema prompts on any destructive/data-loss
+    // diff, and in CI (no TTY) that prompt resolves to "no" and exits without
+    // applying. Additive nullable columns apply without a prompt.
+    const prevNodeEnv = process.env.NODE_ENV;
+    process.env.NODE_ENV = "development";
+    try {
+      const { seedDatabase } = await import("./seed");
+      await seedDatabase();
+    } finally {
+      if (prevNodeEnv === undefined) {
+        delete process.env.NODE_ENV;
+      } else {
+        process.env.NODE_ENV = prevNodeEnv;
+      }
+    }
   } else {
     console.log("Local build: using SQLite from DATABASE_URI or ./petster.db.");
   }
