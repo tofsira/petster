@@ -72,14 +72,31 @@ export default async function AnimalHubPage({ params }: { params: Params }) {
       </header>
 
       {categories.length > 0 && (
-        <nav className="animal-tabs" aria-label={`หมวด${animalLabel(animal)}`}>
-          <span>ทั้งหมด</span>
-          {categories.map((c) => (
-            <Link key={c.id} href={categoryUrl(animal, c.slug)}>
-              {c.name}
-            </Link>
-          ))}
-        </nav>
+        <section id="topics" className="animal-card-section">
+          <div className="animal-card-grid" aria-label={`หมวดความรู้${animalLabel(animal)}`}>
+            {categories.map((category) => {
+              const img = imageFrom(category, undefined, "squareCard");
+              return (
+                <Link key={category.id} className="animal-topic-card" href={categoryUrl(animal, category.slug)}>
+                  {img && (
+                    <figure className="animal-topic-image">
+                      <Image
+                        src={img.url}
+                        alt={img.alt || category.name}
+                        fill
+                        sizes="(min-width: 720px) 25vw, 50vw"
+                      />
+                    </figure>
+                  )}
+                  <div className="animal-topic-body">
+                    <span>{category.name}</span>
+                    {category.intro && <p>{category.intro}</p>}
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        </section>
       )}
 
       {articles.length > 0 && (
