@@ -1573,6 +1573,10 @@ h3 {
     align-self: auto;
     border-radius: 0;
   }
+
+  .category-article-link .category-article-copy {
+    align-content: start;
+  }
 }
 
 @media (min-width: 760px) {
