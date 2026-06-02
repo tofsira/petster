@@ -5,7 +5,7 @@ import type { Metadata } from "next";
 import { cmsFind } from "@/lib/cms";
 import { getCategoryStaticParams } from "@/lib/cms-paths";
 import { imageFrom, type ArticleDoc, type CategoryDoc } from "@/lib/content-types";
-import { slugToAnimal, animalLabel, articleUrl, animalToSlug, categoryUrl } from "@/lib/url";
+import { slugToAnimal, animalLabel, articleUrl, animalToSlug } from "@/lib/url";
 
 type Params = Promise<{ animal: string; category: string }>;
 
@@ -49,10 +49,10 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
   const { animal, category } = await params;
   const data = await getCategoryData(animal, category);
-  if (!data) return { title: "ไม่พบหมวด | Petster" };
+  if (!data) return { title: "ไม่พบหมวด" };
 
   return {
-    title: `${data.category.name} ${animalLabel(data.animal)} | Petster`,
+    title: `${data.category.name} ${animalLabel(data.animal)}`,
     description: data.category.intro || undefined,
   };
 }
@@ -68,6 +68,8 @@ export default async function CategoryHubPage({ params }: { params: Params }) {
   return (
     <main className="shell category-page">
       <nav className="breadcrumb" aria-label="Breadcrumb">
+        <Link href="/">หน้าแรก</Link>
+        <span aria-hidden="true">›</span>
         <Link href={`/${animalToSlug(animal)}`}>{animalLabel(animal)}</Link>
       </nav>
 
@@ -86,11 +88,7 @@ export default async function CategoryHubPage({ params }: { params: Params }) {
           <div>
             {featuredArticle && (
               <section className="category-section">
-                <div className="section-heading">
-                  <p className="eyebrow">อ่านก่อน</p>
-                  <h2>บทความแนะนำ</h2>
-                </div>
-
+                <h2 className="section-label">บทความแนะนำ</h2>
                 <CategoryArticleLink
                   article={featuredArticle}
                   animal={animal}
@@ -102,11 +100,7 @@ export default async function CategoryHubPage({ params }: { params: Params }) {
 
             {latestArticles.length > 0 && (
               <section className="category-section">
-                <div className="section-heading">
-                  <p className="eyebrow">Latest</p>
-                  <h2>บทความล่าสุด</h2>
-                </div>
-
+                <h2 className="section-label">บทความล่าสุด</h2>
                 <div className="category-list">
                   {latestArticles.map((article) => (
                     <CategoryArticleLink
@@ -122,28 +116,10 @@ export default async function CategoryHubPage({ params }: { params: Params }) {
           </div>
 
           <aside className="category-paths" aria-label="ช่วยเลือกเรื่องที่ควรอ่าน">
-            <header className="section-heading">
-              <h2>เริ่มจากสิ่งที่เห็น</h2>
-            </header>
+            <h2 className="section-label">เริ่มจากสิ่งที่เห็น</h2>
             <div className="category-path-note">
               ถ้าอาการรุนแรง ซึมมาก หายใจลำบาก หรือมีเลือดปน ควรติดต่อสัตวแพทย์ทันที ก่อนอ่านต่อ
             </div>
-            <Link className="category-path" href={categoryUrl(animal, categorySlug)}>
-              <span>กินน้อยหรือไม่กิน<small>แยกความเครียด เบื่ออาหาร และสัญญาณป่วย</small></span>
-              <span aria-hidden="true">→</span>
-            </Link>
-            <Link className="category-path" href={categoryUrl(animal, categorySlug)}>
-              <span>อาเจียนหรือถ่ายเหลว<small>ดูความถี่ อาการร่วม และเวลาที่ควรไปคลินิก</small></span>
-              <span aria-hidden="true">→</span>
-            </Link>
-            <Link className="category-path" href={categoryUrl(animal, categorySlug)}>
-              <span>คัน เกา หรือขนร่วง<small>เริ่มจากผิวหนัง เห็บหมัด แพ้อาหาร และการอาบน้ำ</small></span>
-              <span aria-hidden="true">→</span>
-            </Link>
-            <Link className="category-path" href={categoryUrl(animal, categorySlug)}>
-              <span>ดูแลสุนัขสูงวัย<small>เช็กน้ำหนัก ข้อ ฟัน และพฤติกรรมที่เปลี่ยนไป</small></span>
-              <span aria-hidden="true">→</span>
-            </Link>
           </aside>
         </section>
       )}
@@ -163,6 +139,7 @@ function CategoryArticleLink({
   variant?: "featured" | "list";
 }) {
   const hero = imageFrom(article, undefined, variant === "featured" ? "squareCard" : "squareSmall");
+  const readingTime = article.readingTimeMinutes ? `อ่าน ${article.readingTimeMinutes} นาที` : null;
 
   return (
     <Link
@@ -180,7 +157,7 @@ function CategoryArticleLink({
         </figure>
       )}
       <div className="category-article-copy">
-        <p>{variant === "featured" ? "อ่าน 4 นาที" : "บทความ"}</p>
+        {readingTime && <p>{readingTime}</p>}
         {variant === "featured" ? <h2>{article.title}</h2> : <h3>{article.title}</h3>}
         {article.excerpt && <span>{article.excerpt}</span>}
       </div>
