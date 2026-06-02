@@ -1555,6 +1555,7 @@ h3 {
   .category-list {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: var(--space-3);
+    align-items: start;
     border-top: 0;
   }
 
@@ -1608,6 +1609,7 @@ h3 {
   .animal-article-list {
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: var(--space-3);
+    align-items: start;
     border-top: 0;
   }
 
@@ -2030,6 +2032,7 @@ h3 {
   .article-related-list {
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: var(--space-3);
+    align-items: start;
   }
 
   .article-related-link {
