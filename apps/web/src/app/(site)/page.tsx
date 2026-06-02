@@ -9,7 +9,7 @@ import {
   type ArticleDoc,
 } from "@/lib/content-types";
 import { animalUrl, articleUrl, categoryUrl, type Animal } from "@/lib/url";
-import { ConnectionNotice } from "@/components/connection-notice";
+import { ConnectionBanner, PlaceholderTiles } from "@/components/cms-offline";
 
 const FALLBACK_IMAGES = {
   hero: "https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=1200&q=80",
@@ -183,8 +183,12 @@ export default async function HomePage() {
           <h2>สุนัขและแมว</h2>
         </div>
 
-        {connectionError && <ConnectionNotice />}
-
+        {connectionError ? (
+          <>
+            <ConnectionBanner />
+            <PlaceholderTiles count={6} />
+          </>
+        ) : (
         <div className="pet-columns">
           <section className="pet-column" aria-labelledby="home-dogs">
             <div className="pet-column-head reveal">
@@ -210,6 +214,7 @@ export default async function HomePage() {
             </div>
           </section>
         </div>
+        )}
       </section>
 
       <section id="trust" className="shell section trust-section">

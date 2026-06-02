@@ -19,7 +19,7 @@ import {
   articleUrl,
   type Animal,
 } from "@/lib/url";
-import { ConnectionNotice } from "@/components/connection-notice";
+import { ConnectionBanner } from "@/components/cms-offline";
 
 type Params = Promise<{ animal: string; category: string; slug: string }>;
 type SearchParams = Promise<{ draft?: string; token?: string }>;
@@ -249,7 +249,7 @@ export default async function ArticlePage({
         <nav className="breadcrumb" aria-label="Breadcrumb">
           <Link href="/">หน้าแรก</Link>
         </nav>
-        <ConnectionNotice />
+        <ConnectionBanner />
       </main>
     );
   }

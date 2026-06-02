@@ -12,7 +12,7 @@ import {
   type CategoryDoc,
 } from "@/lib/content-types";
 import { slugToAnimal, animalLabel, categoryUrl, articleUrl } from "@/lib/url";
-import { ConnectionNotice } from "@/components/connection-notice";
+import { ConnectionBanner, PlaceholderTiles } from "@/components/cms-offline";
 
 type Params = Promise<{ animal: string }>;
 
@@ -95,8 +95,13 @@ export default async function AnimalHubPage({ params }: { params: Params }) {
         </p>
       </header>
 
-      {connectionError && <ConnectionNotice />}
-
+      {connectionError ? (
+        <section className="animal-card-section">
+          <ConnectionBanner />
+          <PlaceholderTiles count={8} />
+        </section>
+      ) : (
+        <>
       {categories.length > 0 && (
         <section id="topics" className="animal-card-section">
           <div className="animal-card-grid" aria-label={`หมวดความรู้${animalLabel(animal)}`}>
@@ -134,6 +139,8 @@ export default async function AnimalHubPage({ params }: { params: Params }) {
             ))}
           </div>
         </section>
+      )}
+        </>
       )}
     </main>
   );

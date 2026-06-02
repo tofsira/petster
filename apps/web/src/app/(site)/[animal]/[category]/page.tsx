@@ -6,7 +6,7 @@ import { cmsFind } from "@/lib/cms";
 import { getCategoryStaticParams } from "@/lib/cms-paths";
 import { imageFrom, type ArticleDoc, type CategoryDoc } from "@/lib/content-types";
 import { slugToAnimal, animalLabel, articleUrl, animalToSlug, type Animal } from "@/lib/url";
-import { ConnectionNotice } from "@/components/connection-notice";
+import { OfflineState } from "@/components/cms-offline";
 
 type Params = Promise<{ animal: string; category: string }>;
 
@@ -75,7 +75,7 @@ export default async function CategoryHubPage({ params }: { params: Params }) {
         <nav className="breadcrumb" aria-label="Breadcrumb">
           <Link href="/">หน้าแรก</Link>
         </nav>
-        <ConnectionNotice />
+        <OfflineState count={6} />
       </main>
     );
   }

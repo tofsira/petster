@@ -1249,40 +1249,72 @@ h3 {
   font-weight: 600;
 }
 
-.connection-notice {
+.connection-banner {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: var(--space-3);
-  margin: var(--space-4) 0;
-  padding: var(--space-4);
-  border: 1px solid var(--line);
+  margin: var(--space-4) 0 var(--space-5);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid rgba(241, 185, 77, 0.5);
   border-radius: var(--radius-md);
-  background: var(--surface, #fff);
+  background: rgba(241, 185, 77, 0.12);
+  color: #7a5a13;
+  font-size: 0.95rem;
+  line-height: 1.5;
 }
 
-.connection-notice-icon {
+.connection-banner-icon {
   flex: none;
-  font-size: 1.25rem;
-  line-height: 1.4;
-  color: var(--trust);
+  font-size: 1.1rem;
 }
 
-.connection-notice-copy {
-  display: grid;
-  gap: var(--space-1);
-}
-
-.connection-notice-title {
-  margin: 0;
+.connection-banner strong {
   font-weight: 600;
   color: var(--ink, var(--trust));
 }
 
-.connection-notice-detail {
-  margin: 0;
+/* Inert (non-animated) placeholders: keep the page shape without implying that
+   content is still loading — a CMS outage needs a manual retry. */
+.placeholder-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+  margin: var(--space-4) 0;
+}
+
+.placeholder-card {
+  aspect-ratio: 1 / 1;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: var(--space-2);
+  border: 1px dashed var(--line);
+  border-radius: var(--radius-md);
+  background: repeating-linear-gradient(
+    135deg,
+    #f3f7f6,
+    #f3f7f6 10px,
+    #eef3f2 10px,
+    #eef3f2 20px
+  );
   color: var(--muted);
-  font-size: 0.95rem;
-  line-height: 1.55;
+  text-align: center;
+}
+
+.placeholder-icon {
+  font-size: 1.4rem;
+  opacity: 0.7;
+}
+
+.placeholder-text {
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+@media (min-width: 720px) {
+  .placeholder-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
 }
 
 .category-featured-link:hover img,
