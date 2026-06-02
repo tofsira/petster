@@ -1,5 +1,5 @@
 import { cmsFind } from "@/lib/cms";
-import type { ArticleDoc, CategoryDoc } from "@/lib/content-types";
+import { categorySlugFrom, type ArticleDoc, type CategoryDoc } from "@/lib/content-types";
 import { animalToSlug, slugToAnimal, type AnimalSlug } from "@/lib/url";
 
 export async function getAnimalStaticParams() {
@@ -29,10 +29,7 @@ export async function getArticleStaticParams() {
 
   const params: { animal: AnimalSlug; category: string; slug: string }[] = [];
   for (const article of articles.docs) {
-      const category =
-        typeof article.category === "object" && article.category
-          ? article.category.slug
-          : null;
+      const category = categorySlugFrom(article.category);
       if (!category) continue;
 
       params.push({

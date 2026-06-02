@@ -20,3 +20,6 @@ export const categoryUrl = (animal: Animal | AnimalSlug, categorySlug: string) =
 export const animalUrl = (animal: Animal): `/${AnimalSlug}` => `/${animalToSlug(animal)}`;
 
 export const animalLabel = (animal: Animal): string => (animal === "dog" ? "สุนัข" : "แมว");
+
+export const getSiteUrl = (): string =>
+  process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";

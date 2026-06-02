@@ -1,10 +1,10 @@
 import type { MetadataRoute } from "next";
 import { cmsFind } from "@/lib/cms";
-import type { ArticleDoc, CategoryDoc } from "@/lib/content-types";
-import { articleUrl, categoryUrl, type Animal } from "@/lib/url";
+import { categorySlugFrom, type ArticleDoc, type CategoryDoc } from "@/lib/content-types";
+import { articleUrl, categoryUrl, getSiteUrl, type Animal } from "@/lib/url";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const site = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+  const site = getSiteUrl();
   const [articles, categories] = await Promise.all([
     cmsFind<ArticleDoc>("articles", { depth: 1, limit: 1000 }),
     cmsFind<CategoryDoc>("categories", { limit: 100 }),
@@ -29,8 +29,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const articleUrls: MetadataRoute.Sitemap = [];
   for (const article of articles.docs) {
     if (!article.publishedAt) continue;
-    const catSlug =
-      typeof article.category === "object" && article.category ? article.category.slug : "";
+    const catSlug = categorySlugFrom(article.category);
     articleUrls.push({
         url: `${site}${articleUrl(article.animal, catSlug, article.slug)}`,
         lastModified: article.updatedAt ? new Date(article.updatedAt) : undefined,
