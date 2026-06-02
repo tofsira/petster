@@ -1572,11 +1572,6 @@ h3 {
 
 .article-head {
   display: grid;
-  gap: 0.9rem;
-}
-
-.article-head-copy {
-  display: grid;
   gap: 0.55rem;
 }
 
@@ -1624,8 +1619,8 @@ h3 {
 
 .article-hero {
   position: relative;
-  height: var(--article-hero-h);
-  border-radius: var(--radius-sm);
+  height: clamp(200px, 38vw, 280px);
+  border-radius: var(--radius-md);
   overflow: hidden;
   background: var(--surface);
 }
@@ -1934,22 +1929,11 @@ h3 {
 
 @media (min-width: 800px) {
   :root {
-    --article-hero-h: 220px;
     --article-related-h: 128px;
   }
 
   .article-page {
     padding-top: 0.25rem;
-  }
-
-  .article-head {
-    grid-template-columns: minmax(0, 1fr) 300px;
-    align-items: center;
-    gap: var(--space-5);
-  }
-
-  .article-title {
-    max-width: 24ch;
   }
 
   .article-related-list {
@@ -1977,12 +1961,7 @@ h3 {
 
 @media (min-width: 1040px) {
   :root {
-    --article-hero-h: 236px;
     --article-related-h: 132px;
-  }
-
-  .article-head {
-    grid-template-columns: minmax(0, 1fr) 340px;
   }
 }
 

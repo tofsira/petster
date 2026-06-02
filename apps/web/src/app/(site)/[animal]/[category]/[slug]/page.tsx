@@ -270,31 +270,29 @@ export default async function ArticlePage({
       </nav>
 
       <header className="article-head">
-        <div className="article-head-copy">
-          <p className="article-tag">
-            {animalLabel(animal)} / {categoryName}
-          </p>
-          <h1 className="article-title">{article.title}</h1>
-          {article.excerpt && <p className="article-lead">{article.excerpt}</p>}
-          <div className="article-meta-row">
-            {published && <span>เผยแพร่ {published}</span>}
-            <span>อ่าน {article.readingTimeMinutes || 1} นาที</span>
-            {hasSources && <a href="#references">มีแหล่งอ้างอิง</a>}
-          </div>
+        <p className="article-tag">
+          {animalLabel(animal)} / {categoryName}
+        </p>
+        <h1 className="article-title">{article.title}</h1>
+        {article.excerpt && <p className="article-lead">{article.excerpt}</p>}
+        <div className="article-meta-row">
+          {published && <span>เผยแพร่ {published}</span>}
+          <span>อ่าน {article.readingTimeMinutes || 1} นาที</span>
+          {hasSources && <a href="#references">มีแหล่งอ้างอิง</a>}
         </div>
-
-        {hero && (
-          <figure className="article-hero">
-            <Image
-              src={hero.url}
-              alt={hero.alt || article.title}
-              fill
-              sizes="(min-width: 900px) 340px, 100vw"
-              priority
-            />
-          </figure>
-        )}
       </header>
+
+      {hero && (
+        <figure className="article-hero">
+          <Image
+            src={hero.url}
+            alt={hero.alt || article.title}
+            fill
+            sizes="(min-width: 800px) 760px, 100vw"
+            priority
+          />
+        </figure>
+      )}
 
       <div className="article-body">
         <p className="article-disclaimer">
