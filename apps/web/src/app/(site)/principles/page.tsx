@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { cmsGlobal } from "@/lib/cms";
 
 export const metadata: Metadata = {
-  title: "หลักการคัดข้อมูล | Petster",
-  description: "Petster อ้างอิงข้อมูลจากแหล่งที่เชื่อถือได้ ทุกบทความสุขภาพมีแหล่งอ้างอิงและคำเตือนว่าไม่แทนการวินิจฉัยจากสัตวแพทย์",
+  title: "หลักการคัดข้อมูล | GoodPet",
+  description: "GoodPet อ้างอิงข้อมูลจากแหล่งที่เชื่อถือได้ ทุกบทความสุขภาพมีแหล่งอ้างอิงและคำเตือนว่าไม่แทนการวินิจฉัยจากสัตวแพทย์",
 };
 
 export default async function PrinciplesPage() {

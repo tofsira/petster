@@ -56,7 +56,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   const { animal, category } = await params;
   const data = await getCategoryData(animal, category);
   if (data.status !== "ok") {
-    return { title: data.status === "error" ? "Petster" : "ไม่พบหมวด" };
+    return { title: data.status === "error" ? "GoodPet" : "ไม่พบหมวด" };
   }
 
   return {

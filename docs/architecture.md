@@ -1,6 +1,6 @@
-# Petster Architecture
+# GoodPet Architecture
 
-Petster is an npm-workspaces monorepo. The public website and Payload CMS are
+GoodPet is an npm-workspaces monorepo. The public website and Payload CMS are
 separate apps that share one repository and one Payload schema.
 
 ```txt
@@ -12,7 +12,7 @@ apps/
   automation/   Google Sheet, MCP, and AI draft workflows (future).
 
 packages/
-  shared/       @petster/shared. The single source of truth for the Payload
+  shared/       @goodpet/shared. The single source of truth for the Payload
                 schema: payload.config.ts, collections, globals, payload-types.
   seo/          Shared SEO helpers (stub).
   prompts/      Shared AI writing and workflow rules (stub).
@@ -33,7 +33,7 @@ design-lab/     Static HTML/CSS design experiments only.
 
 ## Database
 
-- Local dev can use SQLite through `DATABASE_URI=file:./petster.db`.
+- Local dev can use SQLite through `DATABASE_URI=file:./goodpet.db`.
 - Production should use Postgres through `DATABASE_URI=postgresql://...`.
 - Payload is the layer that reads/writes the database. The public web app reads
   Payload, not the database directly.
@@ -41,7 +41,7 @@ design-lab/     Static HTML/CSS design experiments only.
 ## Fonts
 
 The web app self-hosts Prompt and Sarabun in `apps/web/public/fonts` and declares
-them in `apps/web/src/app/(site)/petster.css`. Do not reintroduce
+them in `apps/web/src/app/(site)/goodpet.css`. Do not reintroduce
 `next/font/google` unless the deployment environment can reach Google Fonts at
 build time.
 
@@ -64,7 +64,7 @@ Use one Git repo with two Vercel projects:
 
 | Vercel project | App | Build command | Output directory |
 |---|---|---|---|
-| `petster-cms` | `apps/cms` | `npm run build` | `.next` |
+| `goodpet-cms` | `apps/cms` | `npm run build` | `.next` |
 | `web` | `apps/web` | `npm run build` | `.next` |
 
 Set each Vercel project's Root Directory to its app folder. Each app has its own

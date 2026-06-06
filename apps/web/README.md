@@ -1,6 +1,6 @@
-# Petster Web
+# GoodPet Web
 
-Public frontend for Petster.
+Public frontend for GoodPet.
 
 This app contains only the read-only website:
 
@@ -30,8 +30,8 @@ Open:
 ## Build
 
 ```bash
-npm run lint --workspace petster-web
-npm exec --workspace petster-web tsc -- --noEmit
+npm run lint --workspace goodpet-web
+npm exec --workspace goodpet-web tsc -- --noEmit
 npm run build:web
 ```
 

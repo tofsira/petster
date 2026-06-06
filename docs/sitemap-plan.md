@@ -1,4 +1,4 @@
-# Petster — แผน Sitemap (Phase 1)
+# GoodPet — แผน Sitemap (Phase 1)
 
 > เอกสารวางแผนโครงสร้างหน้าเว็บ — dogs/cats เท่านั้น, ภาษาไทย, read-only, trust-first
 > URL pattern: `animal + topic + intent` (ลำดับชั้นชัดเจน, ไม่ใช่ blog-first)
@@ -24,7 +24,7 @@
 │
 ├── /principles                    หลักการคัดข้อมูล (trust/credibility)
 │
-├── /about                         Petster คือใคร (trust แบรนด์)
+├── /about                         GoodPet คือใคร (trust แบรนด์)
 ├── /contact                       ติดต่อ / แจ้งแก้ไขข้อมูล (E-E-A-T)
 ├── /privacy                       นโยบายความเป็นส่วนตัว
 ├── /search                        หน้าผลการค้นหาเต็ม
@@ -76,7 +76,7 @@
 ### เพิ่มใน Phase 1 (ตัดสินใจแล้ว)
 
 **กลุ่ม trust:**
-- **`/about`** — Petster คือใคร เชื่อถือได้เพราะอะไร (เสริม `/principles` ในมุมแบรนด์)
+- **`/about`** — GoodPet คือใคร เชื่อถือได้เพราะอะไร (เสริม `/principles` ในมุมแบรนด์)
 - **`/contact`** — ช่องทางติดต่อ / แจ้งแก้ไขข้อมูล = สัญญาณ trust (E-E-A-T)
 - **`/privacy`** — นโยบายความเป็นส่วนตัว (จำเป็นถ้ามี analytics/search)
 - **disclaimer** — ข้อจำกัดความรับผิดเนื้อหาสุขภาพ วางใน footer ทุกหน้า (ไม่ต้องเป็นหน้าแยก)

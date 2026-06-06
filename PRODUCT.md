@@ -10,7 +10,7 @@ Primary users are Thai dog and cat owners who want practical, trustworthy guidan
 
 ## Product Purpose
 
-Petster exists to become a trusted Thai knowledge brand for dog and cat care. In phase 1, it is a read-only content experience that helps users find reliable, structured information through category hubs, search, and evergreen articles. Success means users can quickly understand what the site covers, find the right topic path, and feel confident that the information is carefully curated and responsibly presented.
+GoodPet exists to become a trusted Thai knowledge brand for dog and cat care. In phase 1, it is a read-only content experience that helps users find reliable, structured information through category hubs, search, and evergreen articles. Success means users can quickly understand what the site covers, find the right topic path, and feel confident that the information is carefully curated and responsibly presented.
 
 ## Brand Personality
 
@@ -31,7 +31,7 @@ The voice should feel calm, practical, and editorial rather than clinical, child
 1. Build trust through structure first: category clarity, search, article hierarchy, and responsible medical framing should lead the experience.
 2. Make dense information feel easy: the site should feel content-rich in an Asian-media sense, but organized enough to scan comfortably.
 3. Let warmth come from tone and composition, not gimmicks: the brand should feel approachable without becoming playful or unserious.
-4. Create a real editorial point of view: Petster should feel like a designed media brand, not a default CMS theme or component library demo.
+4. Create a real editorial point of view: GoodPet should feel like a designed media brand, not a default CMS theme or component library demo.
 5. Support long-term topical authority: every surface should reinforce clear dog and cat knowledge pathways that expand cleanly over time.
 
 ## Accessibility & Inclusion

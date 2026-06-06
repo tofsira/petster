@@ -4,9 +4,9 @@ export function SiteHeader() {
   return (
     <header className="site-header">
       <div className="shell nav-row">
-        <Link className="brand" href="/" aria-label="Petster home">
-          <span className="brand-mark">P</span>
-          <span className="brand-text">Petster</span>
+        <Link className="brand" href="/" aria-label="GoodPet home">
+          <span className="brand-mark">G</span>
+          <span className="brand-text">GoodPet</span>
         </Link>
 
         <nav className="site-nav" aria-label="Main navigation">

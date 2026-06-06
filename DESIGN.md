@@ -1,12 +1,12 @@
 ---
-name: Petster
+name: GoodPet
 description: Thai editorial pet knowledge brand for dog and cat owners.
 ---
 
-# Design System: Petster
+# Design System: GoodPet
 
 > Status: **implemented**. This documents the design system as actually built in
-> `apps/web/src/app/(site)/petster.css` and the page components, not an aspiration.
+> `apps/web/src/app/(site)/goodpet.css` and the page components, not an aspiration.
 > When code and this file disagree, fix whichever is wrong, then update the other.
 > Re-run `$impeccable document` after large visual changes.
 
@@ -14,7 +14,7 @@ description: Thai editorial pet knowledge brand for dog and cat owners.
 
 **Creative North Star: "The Trustworthy Companion Desk"**
 
-Petster feels like a well-kept editorial desk for modern pet owners: calm, useful,
+GoodPet feels like a well-kept editorial desk for modern pet owners: calm, useful,
 current, visibly organized. Information-rich in the way strong Asian content
 products are, but disciplined enough that a worried owner can scan quickly and
 find a path without stress. Warm without being soft-for-its-own-sake. Not a toy
@@ -33,7 +33,7 @@ store, not a meme brand, not a vet-hospital portal.
 Strategy: **restrained** — clean cool neutrals, one teal brand accent, one coral
 support accent used sparingly. Warmth comes from composition, not a tinted canvas.
 
-All colors live as CSS custom properties in `:root` (`petster.css`). Use the
+All colors live as CSS custom properties in `:root` (`goodpet.css`). Use the
 tokens; do not hard-code hex.
 
 | Token | Value | Role |
@@ -61,7 +61,7 @@ gradient scrim + text-shadow so it passes over any photo.
 ## Typography
 
 Two self-hosted families (see `apps/web/public/fonts`, `@font-face` at top of
-`petster.css`). **Not** loaded via next/font/google. Thai + Latin subsets, both
+`goodpet.css`). **Not** loaded via next/font/google. Thai + Latin subsets, both
 with `unicode-range` splits so Thai glyphs come from the Thai woff2.
 
 - **Prompt** (display): headings, brand, labels, card titles. Weights 500/600/700.
@@ -174,7 +174,7 @@ use `--accent` coral; takeaways/tips use `--primary` teal.
 Restrained. `transform`/`opacity` only. Image `scale(1.03–1.05)` on card hover,
 arrow nudge on cover tiles. `.reveal` IntersectionObserver fade-up that defaults
 to visible (content never gated on JS). Full `prefers-reduced-motion` reset at the
-bottom of `petster.css`.
+bottom of `goodpet.css`.
 
 ## Do / Don't
 

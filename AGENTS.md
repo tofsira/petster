@@ -1,10 +1,10 @@
 # AGENTS.md
 
-Project guidance for coding agents working on Petster.
+Project guidance for coding agents working on GoodPet.
 
 ## Project Summary
 
-Petster is a Thai-language brand and media website for trustworthy dog and cat
+GoodPet is a Thai-language brand and media website for trustworthy dog and cat
 knowledge.
 
 Phase 1 scope:
@@ -15,7 +15,7 @@ Phase 1 scope:
 - Frontend: Next.js 16 + React 19 + TypeScript + Tailwind CSS 4
 - CMS: Payload CMS 3.x
 - Database: Payload adapter switches by `DATABASE_URI`
-  - `file:./petster.db` -> SQLite dev default
+  - `file:./goodpet.db` -> SQLite dev default
   - `postgresql://...` -> Postgres production
 - Media: local in dev, Vercel Blob in production when `BLOB_READ_WRITE_TOKEN`
   is set
@@ -78,7 +78,7 @@ Use one Git repo with two Vercel projects:
 
 | Project | App | Build command | Output directory |
 |---|---|---|---|
-| `petster-cms` | `apps/cms` | `npm run build` | `.next` |
+| `goodpet-cms` | `apps/cms` | `npm run build` | `.next` |
 | `web` | `apps/web` | `npm run build` | `.next` |
 
 Set each Vercel project's Root Directory to its app folder. Each app has its own
@@ -155,7 +155,7 @@ Rules:
 
 ## Design Direction
 
-Petster should feel:
+GoodPet should feel:
 
 - warm
 - trustworthy
@@ -188,7 +188,7 @@ Done:
 9. Sitemap and robots
 10. Seed content
 11. Self-hosted Prompt and Sarabun fonts
-12. Implemented design system in `petster.css` (tokens, cover-tile vs document-card,
+12. Implemented design system in `goodpet.css` (tokens, cover-tile vs document-card,
     standardized breadcrumb, spacing scale) — documented in `DESIGN.md`
 13. Lexical rich-text body rendered with all content blocks (callout, keyTakeaways,
     redFlags, whenToSeeVet, stepList, comparisonTable, imageBlock)

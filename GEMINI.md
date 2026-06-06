@@ -1,10 +1,10 @@
 # GEMINI.md
 
-Project guidance for Gemini when helping shape `Petster`.
+Project guidance for Gemini when helping shape `GoodPet`.
 
-## What Petster Is
+## What GoodPet Is
 
-`Petster` is a Thai brand + media website for reliable dog and cat knowledge.
+`GoodPet` is a Thai brand + media website for reliable dog and cat knowledge.
 
 Phase 1:
 
@@ -16,7 +16,7 @@ Phase 1:
 
 ## Product Positioning
 
-Think of Petster as:
+Think of GoodPet as:
 
 - a trustworthy knowledge brand
 - not a clinic website
@@ -48,7 +48,7 @@ Do not optimize for:
 
 ## UX Principles
 
-Petster should feel like an Asian content product with good structure, not like an empty Western landing page.
+GoodPet should feel like an Asian content product with good structure, not like an empty Western landing page.
 
 Interpret this as:
 
@@ -120,7 +120,7 @@ When giving SEO advice, prioritize:
 
 ## Reference and Credibility Rules
 
-Petster will use NotebookLM as a reference library.
+GoodPet will use NotebookLM as a reference library.
 
 That means:
 
@@ -159,18 +159,18 @@ Installed and running:
 - Payload CMS 3.x
 - TypeScript
 - DB adapter switches by `DATABASE_URI`:
-  - `file:./petster.db` → SQLite (`@payloadcms/db-sqlite`, default for dev)
+  - `file:./goodpet.db` → SQLite (`@payloadcms/db-sqlite`, default for dev)
   - `postgresql://...` → Postgres (`@payloadcms/db-postgres`, production)
 - Tailwind CSS 4 (base only). The public site `(site)` is styled by a
-  hand-written design system in `apps/web/src/app/(site)/petster.css`, **not**
+  hand-written design system in `apps/web/src/app/(site)/goodpet.css`, **not**
   shadcn/ui. Do not add shadcn components to the public site.
 - Media storage: local in dev, Vercel Blob in prod (auto-enabled when `BLOB_READ_WRITE_TOKEN` is set)
 - Fonts: **self-hosted** Prompt (display) + Sarabun (body) as woff2 in
-  `apps/web/public/fonts`, declared via `@font-face` in `petster.css`. **Not**
+  `apps/web/public/fonts`, declared via `@font-face` in `goodpet.css`. **Not**
   `next/font/google`.
 
 Monorepo (npm workspaces). The Payload **schema** (config, collections, globals,
-types) lives once in `packages/shared` (`@petster/shared`):
+types) lives once in `packages/shared` (`@goodpet/shared`):
 
 - `apps/web` — public read-only site. Fetches content over HTTP from the CMS via
   `CMS_URL` + Payload **REST API** (`apps/web/src/lib/cms.ts`, `cmsFind`). It does
@@ -184,7 +184,7 @@ in `design-lab/`.
 ## Running the App
 
 ```bash
-npm install            # run at the repo ROOT (links @petster/shared into both apps)
+npm install            # run at the repo ROOT (links @goodpet/shared into both apps)
 npm run dev:cms        # Payload admin → http://localhost:3000/admin
 npm run seed           # populate 4 categories + 10 sample articles (via cms)
 npm run dev:web        # public site (use a second port, e.g. PORT=3001)
@@ -205,7 +205,7 @@ npm run dev:web        # public site (use a second port, e.g. PORT=3001)
 ## Key Files
 
 ```
-packages/shared/src/           # @petster/shared — schema, shared by both apps
+packages/shared/src/           # @goodpet/shared — schema, shared by both apps
 ├── payload.config.ts          # DB adapter switch + Vercel Blob plugin
 ├── collections/
 │   ├── Articles.ts            # title, slug, animal, category, excerpt, heroImage|heroImageUrl, body, sources, faq, seo
@@ -231,7 +231,7 @@ apps/web/src/                  # public site (REST reads via CMS_URL) → Vercel
     ├── sitemap.ts, robots.ts
     └── (site)/                # public website routes
         ├── layout.tsx         # html/body + chrome
-        ├── petster.css        # design system CSS + @font-face (self-hosted)
+        ├── goodpet.css        # design system CSS + @font-face (self-hosted)
         ├── page.tsx           # homepage
         ├── principles/page.tsx
         ├── [animal]/page.tsx              # animal hub
@@ -239,7 +239,7 @@ apps/web/src/                  # public site (REST reads via CMS_URL) → Vercel
         └── [animal]/[category]/[slug]/page.tsx  # article (Lexical bodyConverters)
 
 apps/cms/src/                  # editing backend (Local API + writes) → Vercel
-├── payload.config.ts          # 1-line re-export of @petster/shared/config
+├── payload.config.ts          # 1-line re-export of @goodpet/shared/config
 └── app/(payload)/             # Payload admin (/admin) + API (/api), auto-generated
 ```
 

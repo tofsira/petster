@@ -21,8 +21,8 @@
     "paths": {
       "@/*": ["./src/*"],
       "@payload-config": ["./src/payload.config.ts"],
-      "@petster/shared": ["../../packages/shared/src/index.ts"],
-      "@petster/shared/config": ["../../packages/shared/src/payload.config.ts"]
+      "@goodpet/shared": ["../../packages/shared/src/index.ts"],
+      "@goodpet/shared/config": ["../../packages/shared/src/payload.config.ts"]
     }
   },
   "include": [

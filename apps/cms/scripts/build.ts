@@ -53,7 +53,7 @@ async function main() {
       }
     }
   } else {
-    console.log("Local build: using SQLite from DATABASE_URI or ./petster.db.");
+    console.log("Local build: using SQLite from DATABASE_URI or ./goodpet.db.");
   }
 
   execSync("next build", { stdio: "inherit", env: process.env });

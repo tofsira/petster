@@ -1,6 +1,6 @@
-# Petster CMS
+# GoodPet CMS
 
-Payload backend for Petster.
+Payload backend for GoodPet.
 
 This app contains:
 
@@ -37,8 +37,8 @@ npm run seed
 ## Build
 
 ```bash
-npm run lint --workspace petster-cms
-npm exec --workspace petster-cms tsc -- --noEmit
+npm run lint --workspace goodpet-cms
+npm exec --workspace goodpet-cms tsc -- --noEmit
 npm run build:cms
 ```
 

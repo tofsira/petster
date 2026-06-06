@@ -1,10 +1,10 @@
 # CLAUDE.md
 
-Project guidance for Claude when helping shape Petster.
+Project guidance for Claude when helping shape GoodPet.
 
-## What Petster Is
+## What GoodPet Is
 
-Petster is a Thai brand and media website for reliable dog and cat knowledge.
+GoodPet is a Thai brand and media website for reliable dog and cat knowledge.
 
 Phase 1:
 
@@ -16,7 +16,7 @@ Phase 1:
 
 ## Product Direction
 
-Think of Petster as:
+Think of GoodPet as:
 
 - a trustworthy knowledge brand
 - not a clinic website
@@ -42,7 +42,7 @@ that weakens trust.
 - TypeScript
 - Tailwind CSS 4
 - Database adapter switches by `DATABASE_URI`
-  - `file:./petster.db` -> SQLite dev default
+  - `file:./goodpet.db` -> SQLite dev default
   - `postgresql://...` -> Postgres production
 - Media storage: local in dev, Vercel Blob in prod when
   `BLOB_READ_WRITE_TOKEN` is set
@@ -97,7 +97,7 @@ Use one Git repo with two Vercel projects:
 
 | Project | App | Build command | Output directory |
 |---|---|---|---|
-| `petster-cms` | `apps/cms` | `npm run build` | `.next` |
+| `goodpet-cms` | `apps/cms` | `npm run build` | `.next` |
 | `web` | `apps/web` | `npm run build` | `.next` |
 
 Set each Vercel project's Root Directory to its app folder. Each app has its own
@@ -130,7 +130,7 @@ path in the output, resulting in a doubled path error:
 `lstat '/vercel/path1/vercel/path1/.next/...'` and deployment failure.
 The CMS app may keep `outputFileTracingRoot` if it ever needs standalone output.
 
-**3. `CMS_URL` must be set in the `petster-app` Vercel project env before the first deploy.**
+**3. `CMS_URL` must be set in the `goodpet-app` Vercel project env before the first deploy.**
 Without it the web build defaults to `localhost:3000`. As of the resilient
 fetch layer (`lib/cms.ts` returns `{ ..., ok }` instead of throwing), a missing
 or unreachable CMS no longer crashes the build — it logs `CMS <collection>:
@@ -147,7 +147,7 @@ a proper migration is prepared.
 
 **5. `apps/cms/postcss.config.mjs` must not exist.**
 The CMS does not use Tailwind. Any leftover `postcss.config.mjs` from
-the old pre-split `petster-app` will cause `Cannot find module @tailwindcss/postcss`
+the old pre-split `goodpet-app` will cause `Cannot find module @tailwindcss/postcss`
 during the CMS build.
 
 ## Implemented Pages
@@ -173,7 +173,7 @@ packages/shared/src/
 
 apps/web/src/
   app/(site)/layout.tsx
-  app/(site)/petster.css
+  app/(site)/goodpet.css
   app/(site)/page.tsx
   app/(site)/[animal]/page.tsx
   app/(site)/[animal]/[category]/page.tsx
@@ -242,7 +242,7 @@ intros, and FAQ opportunities.
 
 ## UI Direction
 
-Petster should feel warm, trustworthy, contemporary, and editorial.
+GoodPet should feel warm, trustworthy, contemporary, and editorial.
 
 Use medium density, clear grouping, visible navigation paths, useful search, and
 strong sectioning. Keep mobile reading comfort high and avoid default-looking

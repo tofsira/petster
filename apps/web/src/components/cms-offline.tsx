@@ -1,5 +1,5 @@
 /**
- * Shown when the CMS (content backend) cannot be reached. Per Petster's trust
+ * Shown when the CMS (content backend) cannot be reached. Per GoodPet's trust
  * rules we never fabricate content, so instead of fake articles we keep the
  * page's shape with a clear banner plus inert placeholder tiles. The tiles are
  * deliberately static (no shimmer) so they read as "unavailable", not "loading"

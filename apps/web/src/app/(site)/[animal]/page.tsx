@@ -64,7 +64,7 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
   const { animal } = await params;
   const a = slugToAnimal(animal);
-  if (!a) return { title: "ไม่พบ | Petster" };
+  if (!a) return { title: "ไม่พบ | GoodPet" };
   return {
     title: animalLabel(a),
     description: `รวมความรู้เรื่อง${animalLabel(a)} ครบทุกหมวด — สุขภาพ อาหาร พฤติกรรม และการดูแลประจำวัน`,

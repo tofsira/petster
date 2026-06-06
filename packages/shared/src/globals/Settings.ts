@@ -7,7 +7,7 @@ export const Settings: GlobalConfig = {
     {
       type: "row",
       fields: [
-        { name: "siteName", type: "text", defaultValue: "Petster" },
+        { name: "siteName", type: "text", defaultValue: "GoodPet" },
         { name: "tagline", type: "text" },
       ],
     },

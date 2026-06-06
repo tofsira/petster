@@ -19,7 +19,7 @@
  *   GOOGLE_APPLICATION_CREDENTIALS path to a service account json (alt to the
  *                                  two GOOGLE_* vars above)
  *
- * Run: npm run sync:content --workspace petster-cms
+ * Run: npm run sync:content --workspace goodpet-cms
  */
 import { getPayload } from "payload";
 import { GoogleAuth } from "google-auth-library";

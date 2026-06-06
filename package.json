@@ -1,5 +1,5 @@
 {
-  "name": "petster",
+  "name": "goodpet",
   "version": "0.1.0",
   "private": true,
   "workspaces": [
@@ -8,13 +8,13 @@
     "packages/shared"
   ],
   "scripts": {
-    "dev:web": "npm run dev --workspace petster-web",
-    "dev:cms": "npm run dev --workspace petster-cms",
-    "build:web": "npm run build --workspace petster-web",
-    "build:cms": "npm run build --workspace petster-cms",
-    "seed": "npm run seed --workspace petster-cms",
-    "sync:content": "npm run sync:content --workspace petster-cms",
-    "generate:types": "npm run generate:types --workspace petster-cms",
+    "dev:web": "npm run dev --workspace goodpet-web",
+    "dev:cms": "npm run dev --workspace goodpet-cms",
+    "build:web": "npm run build --workspace goodpet-web",
+    "build:cms": "npm run build --workspace goodpet-cms",
+    "seed": "npm run seed --workspace goodpet-cms",
+    "sync:content": "npm run sync:content --workspace goodpet-cms",
+    "generate:types": "npm run generate:types --workspace goodpet-cms",
     "doctor": "npx react-doctor@latest"
   },
   "devDependencies": {

@@ -1,6 +1,6 @@
-# @petster/shared
+# @goodpet/shared
 
-Single source of truth for the Petster Payload schema.
+Single source of truth for the GoodPet Payload schema.
 
 Contains:
 
@@ -10,7 +10,7 @@ Contains:
 - `src/payload-types.ts` - generated types (`npm run generate:types`)
 - `src/index.ts` - exports config and types
 
-The CMS app imports this package through `@petster/shared/config`.
+The CMS app imports this package through `@goodpet/shared/config`.
 
 Edit collections and globals here, not inside `apps/cms` or `apps/web`.
 Lightweight shared validation helpers can live here later.

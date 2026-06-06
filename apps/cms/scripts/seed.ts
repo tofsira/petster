@@ -766,8 +766,8 @@ export async function seedDatabase() {
   const { default: config } = await import("@payload-config");
   const payload = await getPayload({ config });
 
-  const adminEmail = process.env.PAYLOAD_ADMIN_EMAIL || "admin@petster.local";
-  const adminPassword = process.env.PAYLOAD_ADMIN_PASSWORD || "PetsterAdmin2026!";
+  const adminEmail = process.env.PAYLOAD_ADMIN_EMAIL || "admin@goodpet.local";
+  const adminPassword = process.env.PAYLOAD_ADMIN_PASSWORD || "GoodPetAdmin2026!";
 
   const existingUsers = await payload.find({ collection: "users", limit: 1 });
   if (existingUsers.totalDocs === 0) {
@@ -776,7 +776,7 @@ export async function seedDatabase() {
       data: {
         email: adminEmail,
         password: adminPassword,
-        name: "Petster Admin",
+        name: "GoodPet Admin",
       },
     });
     console.log(`  created admin user ${adminEmail}`);

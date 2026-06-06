@@ -22,9 +22,9 @@ const FALLBACK_IMAGES = {
 } as const;
 
 export const metadata: Metadata = {
-  title: "Petster | ความรู้หมาแมวที่น่าเชื่อถือ",
+  title: "GoodPet | ความรู้หมาแมวที่น่าเชื่อถือ",
   description:
-    "Petster รวมบทความหมาแมวที่อ่านง่าย มีโครงสร้างชัด และเน้นข้อมูลที่ใช้ได้จริงสำหรับเจ้าของสัตว์เลี้ยง",
+    "GoodPet รวมบทความหมาแมวที่อ่านง่าย มีโครงสร้างชัด และเน้นข้อมูลที่ใช้ได้จริงสำหรับเจ้าของสัตว์เลี้ยง",
 };
 
 async function getHomepageData() {
@@ -100,7 +100,7 @@ export default async function HomePage() {
     <main id="top">
       <section className="app-home shell">
         <div className="hero-copy reveal">
-          <p className="eyebrow">Petster</p>
+          <p className="eyebrow">GoodPet</p>
           <h1>คำตอบเรื่องหมาแมว ที่หาเจอไว</h1>
           <p className="hero-lead">
             เว็บความรู้สัตว์เลี้ยงภาษาไทยสำหรับเจ้าของหมาแมว อ่านง่าย อ้างอิงได้ และไม่ทำให้เรื่องสุขภาพดูเบาเกินจริง

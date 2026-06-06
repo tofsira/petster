@@ -23,7 +23,7 @@ const databaseUri =
   normalizeEnv(process.env.DATABASE_URI) ||
   normalizeEnv(process.env.DATABASE_URL_UNPOOLED) ||
   normalizeEnv(process.env.DATABASE_URL) ||
-  "file:./petster.db";
+  "file:./goodpet.db";
 const isPostgres =
   databaseUri.startsWith("postgres://") ||
   databaseUri.startsWith("postgresql://");

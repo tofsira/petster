@@ -1,6 +1,6 @@
 # Article Sheet — คู่มือคนทำ content
 
-แผ่นงานนี้คือ **ที่ร่างบทความ** สำหรับ Petster ทีม content กรอกที่นี่ → ระบบ sync เข้า
+แผ่นงานนี้คือ **ที่ร่างบทความ** สำหรับ GoodPet ทีม content กรอกที่นี่ → ระบบ sync เข้า
 Payload CMS เป็น **draft** → reviewer ตรวจและ publish
 
 > 1 แถว = 1 บทความ · sync เป็นทางเดียว (Sheet → CMS) · ระบบจะไม่ทับบทความที่ publish แล้ว
